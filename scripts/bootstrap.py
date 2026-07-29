@@ -26,7 +26,7 @@ def venv_python(name: str) -> Path:
 
 def run(command: list[str], *, environment: dict[str, str] | None = None) -> None:
     printable = " ".join(command)
-    print(f"\n→ {printable}", flush=True)
+    print(f"\n-> {printable}", flush=True)
     subprocess.run(command, cwd=APP_DIR, env=environment, check=True)
 
 

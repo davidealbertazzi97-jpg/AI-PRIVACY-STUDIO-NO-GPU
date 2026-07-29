@@ -486,7 +486,7 @@ def run_smoke(
                 or "PaddleOCR" not in private_image_pipeline
             ):
                 raise AssertionError(
-                    "La pipeline automatica immagine → Privacy Filter è incompleta."
+                    "La pipeline automatica immagine -> Privacy Filter è incompleta."
                 )
             results["privacy_filter_image"] = private_image
 

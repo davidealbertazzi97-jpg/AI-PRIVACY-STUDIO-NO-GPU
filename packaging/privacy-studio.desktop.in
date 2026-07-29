@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Privacy Studio Locale
+Comment=Trascrizione, OCR, anonimizzazione e cassaforte in locale
+Exec="@GUI_LAUNCHER@"
+Icon=privacy-studio
+Terminal=false
+Categories=Office;Utility;Security;
+Keywords=privacy;ocr;trascrizione;anonimizzazione;picocrypt;
+StartupNotify=true
+StartupWMClass=PrivacyStudio

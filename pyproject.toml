@@ -1,0 +1,21 @@
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+extend-exclude = [
+  ".venv",
+  ".venv-ai",
+  ".venv-paddle",
+  "bin",
+]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "SIM", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.bandit]
+# The app intentionally launches fixed local executables with shell=False.
+skips = ["B404", "B603"]

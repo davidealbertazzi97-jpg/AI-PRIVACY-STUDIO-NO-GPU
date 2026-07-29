@@ -1,0 +1,45 @@
+# Local Python environments
+/.venv/
+/.venv-ai/
+/.venv-paddle/
+
+# Downloaded and compiled runtime artifacts
+/bin/
+/models/
+*.download
+*.safetensors
+*.onnx
+
+# Python caches and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local configuration, credentials, state, and user outputs
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.pcv
+*.log
+/data/
+/outputs/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Build and release artifacts
+/build/
+/dist/
+*.egg-info/
+*.tar.gz

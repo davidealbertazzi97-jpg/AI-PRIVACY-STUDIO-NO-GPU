@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f5f7">
+    <title>Privacy Studio Locale</title>
+    <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+    <link rel="preload" href="/assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/assets/app.css">
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <a class="brand" href="#" data-view-link="studio" aria-label="Privacy Studio">
+          <span class="brand-mark"><i data-lucide="shield-check"></i></span>
+          <span>
+            <strong>Privacy Studio</strong>
+            <small>Local intelligence</small>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="Navigazione principale">
+          <button class="nav-item active" data-view-link="studio">
+            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+            <span>Laboratorio</span>
+          </button>
+          <button class="nav-item" data-view-link="vault">
+            <span class="nav-icon"><i data-lucide="vault"></i></span>
+            <span>Cassaforte</span>
+          </button>
+          <button class="nav-item" data-view-link="jobs">
+            <span class="nav-icon"><i data-lucide="history"></i></span>
+            <span>Attività</span>
+            <span class="nav-count" id="active-count">0</span>
+          </button>
+          <button class="nav-item" data-view-link="engines">
+            <span class="nav-icon"><i data-lucide="cpu"></i></span>
+            <span>Motori locali</span>
+          </button>
+        </nav>
+
+        <div class="privacy-seal">
+          <span class="seal-icon"><i data-lucide="lock-keyhole"></i></span>
+          <div>
+            <strong>Connessione locale</strong>
+            <small>Rete esterna bloccata</small>
+          </div>
+          <span class="pulse"></span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">PRIVACY STUDIO · LOCALE</p>
+            <h1 id="page-title">Laboratorio documenti</h1>
+          </div>
+          <div class="top-actions">
+            <span class="engine-summary" id="engine-summary">Verifica motori…</span>
+            <button class="icon-button" id="refresh-button" aria-label="Aggiorna">
+              <i data-lucide="refresh-cw"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-studio">
+          <div class="intro-grid">
+            <div class="intro-copy">
+              <div class="hero-badge">
+                <i data-lucide="sparkles"></i>
+                <span>Elaborazione privata sul dispositivo</span>
+              </div>
+              <h2>I tuoi documenti.<br><span>Solo tuoi.</span></h2>
+              <p>
+                Trascrivi, converti, anonimizza e proteggi file complessi con
+                modelli locali. Gli originali restano sempre intatti.
+              </p>
+            </div>
+            <div class="privacy-card">
+              <span class="privacy-card-icon"><i data-lucide="cloud-off"></i></span>
+              <div>
+                <strong>Zero cloud implicito</strong>
+                <p>Il guard di rete consente alla suite soltanto connessioni locali.</p>
+              </div>
+              <span class="verified-pill"><i data-lucide="check"></i> Verificato</span>
+            </div>
+          </div>
+
+          <form id="studio-form" class="workspace-card">
+            <fieldset class="operation-picker">
+              <legend class="section-label"><span>01</span> Scegli il flusso</legend>
+
+              <label class="operation active">
+                <input type="radio" name="operation" value="anonymize" checked>
+                <span class="operation-symbol"><i data-lucide="scan-face"></i></span>
+                <span class="operation-copy">
+                  <strong>Anonimizza</strong>
+                  <small>Privacy Filter e regole italiane</small>
+                </span>
+                <i class="operation-check" data-lucide="check"></i>
+              </label>
+
+              <label class="operation">
+                <input type="radio" name="operation" value="transcribe">
+                <span class="operation-symbol"><i data-lucide="audio-lines"></i></span>
+                <span class="operation-copy">
+                  <strong>Trascrivi</strong>
+                  <small>Audio e video con Parakeet</small>
+                </span>
+                <i class="operation-check" data-lucide="check"></i>
+              </label>
+
+              <label class="operation">
+                <input type="radio" name="operation" value="ocr">
+                <span class="operation-symbol"><i data-lucide="scan-text"></i></span>
+                <span class="operation-copy">
+                  <strong>Fai OCR</strong>
+                  <small>Immagini e PDF multipagina</small>
+                </span>
+                <i class="operation-check" data-lucide="check"></i>
+              </label>
+
+              <label class="operation">
+                <input type="radio" name="operation" value="convert">
+                <span class="operation-symbol"><i data-lucide="file-text"></i></span>
+                <span class="operation-copy">
+                  <strong>Converti</strong>
+                  <small>Office e PDF in Markdown</small>
+                </span>
+                <i class="operation-check" data-lucide="check"></i>
+              </label>
+            </fieldset>
+
+            <div class="studio-body">
+              <div class="upload-panel">
+                <p class="section-label"><span>02</span> Aggiungi i file</p>
+                <div class="drop-zone" id="studio-drop" tabindex="0" role="button">
+                  <input id="studio-files" type="file" multiple>
+                  <div class="drop-symbol"><i data-lucide="upload-cloud"></i></div>
+                  <strong>Trascina qui i documenti</strong>
+                  <span>oppure selezionali dal dispositivo</span>
+                  <small><i data-lucide="hard-drive"></i> Nessun limite artificiale di pagine o durata</small>
+                </div>
+                <div class="selected-files" id="studio-file-list"></div>
+              </div>
+
+              <div class="settings-panel">
+                <p class="section-label"><span>03</span> Configura</p>
+
+                <label class="field">
+                  <span id="engine-label">Motore</span>
+                  <div class="select-wrap">
+                    <select id="engine-select" name="engine"></select>
+                    <i data-lucide="chevron-down"></i>
+                  </div>
+                  <small id="engine-help"></small>
+                </label>
+
+                <label class="toggle-row" id="dates-option">
+                  <span>
+                    <strong>Proteggi anche le date</strong>
+                    <small>Include date personali e di nascita</small>
+                  </span>
+                  <input type="checkbox" id="include-dates" checked>
+                  <i></i>
+                </label>
+
+                <label class="field hidden" id="chunk-option">
+                  <span>Dimensione blocchi audio</span>
+                  <div class="select-wrap">
+                    <select id="chunk-minutes">
+                      <option value="5">5 minuti — prudente</option>
+                      <option value="10" selected>10 minuti — consigliato</option>
+                      <option value="15">15 minuti — meno blocchi</option>
+                      <option value="20">20 minuti — più memoria</option>
+                    </select>
+                    <i data-lucide="chevron-down"></i>
+                  </div>
+                  <small>I blocchi vengono ricomposti automaticamente.</small>
+                </label>
+
+                <div class="process-note">
+                  <span><i data-lucide="shield-check"></i></span>
+                  <p id="process-note-text">
+                    OpenAI Privacy Filter è il motore di anonimizzazione.
+                    L’estrazione viene scelta automaticamente.
+                  </p>
+                </div>
+
+                <button class="primary-button" type="submit" id="studio-submit">
+                  <span>Avvia in locale</span>
+                  <i data-lucide="arrow-right"></i>
+                </button>
+
+                <div class="upload-progress hidden" id="upload-progress">
+                  <div><span></span></div>
+                  <small>Trasferimento locale nel laboratorio…</small>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <section class="recent-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-label">ATTIVITÀ RECENTI</p>
+                <h3>In lavorazione e completati</h3>
+              </div>
+              <button class="text-button" data-view-link="jobs">
+                Vedi tutto <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+            <div class="job-grid" id="recent-jobs"></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-vault">
+          <div class="vault-hero">
+            <div>
+              <div class="hero-badge">
+                <i data-lucide="badge-check"></i>
+                <span>Picocrypt 1.49 · formato .pcv</span>
+              </div>
+              <h2>Protezione forte.<br><span>Senza compromessi.</span></h2>
+              <p>
+                I file diventano volumi Picocrypt compatibili. La password
+                rimane soltanto in memoria durante l’operazione e non viene
+                mai salvata.
+              </p>
+            </div>
+            <div class="vault-lock" aria-hidden="true">
+              <i data-lucide="lock-keyhole"></i>
+              <span>PCV</span>
+            </div>
+          </div>
+
+          <form id="vault-form" class="vault-form">
+            <div class="vault-drop-column">
+              <p class="section-label">FILE DA PROTEGGERE O APRIRE</p>
+              <div class="drop-zone compact" id="vault-drop" tabindex="0" role="button">
+                <input id="vault-files" type="file" multiple>
+                <div class="drop-symbol"><i data-lucide="folder-lock"></i></div>
+                <strong>Trascina file o volumi .pcv</strong>
+                <span>Puoi cifrare file grandi senza caricarli online</span>
+              </div>
+              <div class="selected-files" id="vault-file-list"></div>
+            </div>
+
+            <div class="vault-settings">
+              <label class="field">
+                <span>Passphrase</span>
+                <input type="password" id="vault-password" minlength="10" autocomplete="new-password" placeholder="Una frase lunga e unica">
+              </label>
+              <label class="field">
+                <span>Conferma passphrase</span>
+                <input type="password" id="vault-confirm" minlength="10" autocomplete="new-password" placeholder="Ripetila">
+              </label>
+              <label class="check-row">
+                <input type="checkbox" id="vault-paranoid">
+                <span>
+                  <strong>Modalità paranoica</strong>
+                  <small>Cascata XChaCha20 + Serpent; molto più lenta</small>
+                </span>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" id="vault-recovery">
+                <span>
+                  <strong>Correzione errori</strong>
+                  <small>Reed–Solomon per archiviazione di lungo periodo</small>
+                </span>
+              </label>
+              <div class="vault-actions">
+                <button type="button" class="primary-button" id="encrypt-button">
+                  <i data-lucide="lock"></i> Cifra nella cassaforte
+                </button>
+                <button type="button" class="secondary-button" id="decrypt-button">
+                  <i data-lucide="unlock"></i> Decifra .pcv
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <section class="vault-list-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-label">VOLUMI LOCALI</p>
+                <h3>Contenuto della cassaforte</h3>
+              </div>
+              <button class="icon-button" id="refresh-vault" aria-label="Aggiorna cassaforte">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="vault-list" id="vault-list"></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-jobs">
+          <div class="page-intro">
+            <div class="hero-badge"><i data-lucide="list-checks"></i><span>Coda persistente</span></div>
+            <h2>Tutte le attività</h2>
+            <p>I lavori lunghi restano in coda e riprendono dopo un riavvio.</p>
+          </div>
+          <div class="job-list" id="all-jobs"></div>
+        </section>
+
+        <section class="view" id="view-engines">
+          <div class="page-intro">
+            <div class="hero-badge"><i data-lucide="gauge"></i><span>Diagnostica locale</span></div>
+            <h2>Motori e modelli</h2>
+            <p>
+              I modelli vengono preparati durante l’installazione. Verde
+              significa pronto e utilizzabile con la rete esterna bloccata.
+            </p>
+          </div>
+          <div class="engine-grid" id="engine-grid"></div>
+          <div class="architecture-note">
+            <div class="architecture-flow">
+              <span><i data-lucide="file-input"></i> FILE</span>
+              <b><i data-lucide="chevron-right"></i></b>
+              <span><i data-lucide="scan-text"></i> ESTRAZIONE</span>
+              <b><i data-lucide="chevron-right"></i></b>
+              <span><i data-lucide="shield-check"></i> PRIVACY</span>
+              <b><i data-lucide="chevron-right"></i></b>
+              <span><i data-lucide="file-check"></i> OUTPUT</span>
+            </div>
+            <p>
+              MarkItDown gestisce i formati nativi; PaddleOCR e GLM-OCR le
+              scansioni; Parakeet v3 l’audio; Privacy Filter lavora sul testo
+              già locale. Picocrypt protegge i file separatamente.
+            </p>
+            <div class="oss-note">
+              <i data-lucide="heart-handshake"></i>
+              <span>Inter (OFL 1.1) + Lucide (ISC) · asset grafici open source inclusi</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="job-dialog" class="dialog">
+      <button class="dialog-close" data-close-dialog aria-label="Chiudi"><i data-lucide="x"></i></button>
+      <div id="job-detail"></div>
+    </dialog>
+
+    <dialog id="decrypt-dialog" class="dialog small-dialog">
+      <button class="dialog-close" data-close-dialog aria-label="Chiudi"><i data-lucide="x"></i></button>
+      <form id="stored-decrypt-form">
+        <p class="eyebrow">APRI VOLUME</p>
+        <h3 id="decrypt-volume-name">Volume .pcv</h3>
+        <input type="hidden" id="decrypt-volume-value">
+        <label class="field">
+          <span>Passphrase</span>
+          <input type="password" id="stored-decrypt-password" minlength="10" autocomplete="current-password" required>
+        </label>
+        <button class="primary-button" type="submit">
+          <i data-lucide="unlock"></i> Decifra in locale
+        </button>
+      </form>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <script src="/assets/vendor/lucide/lucide.min.js" defer></script>
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

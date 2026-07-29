@@ -12,8 +12,33 @@ env:
   APP_VERSION: "1.0.0"
 
 jobs:
-  linux-appimage:
+  prepare-release:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Prepare a private draft release for a version tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "AI Privacy Studio ${GITHUB_REF_NAME}" \
+              --generate-notes \
+              --verify-tag \
+              --draft
+          fi
+      - name: Manual build mode
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Build verification only; no release assets are uploaded."
+
+  linux-appimage:
+    needs: prepare-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build source payload
@@ -60,16 +85,22 @@ jobs:
           tar --exclude-vcs -czf \
             "dist/AppImage-runtime-corresponding-source-${APPIMAGE_RUNTIME_COMMIT}.tar.gz" \
             -C build/type2-runtime-source .
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: linux-appimage
-          path: |
-            dist/*.AppImage
-            dist/AppImage-runtime-corresponding-source-*.tar.gz
-          if-no-files-found: error
+      - name: Upload Linux files to the draft release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload "$GITHUB_REF_NAME"
+          dist/*.AppImage
+          dist/AppImage-runtime-corresponding-source-*.tar.gz
+          --repo "$GITHUB_REPOSITORY"
+          --clobber
 
   windows-exe:
+    needs: prepare-release
     runs-on: windows-2025
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build per-user installer
@@ -103,14 +134,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Inno Setup failed with exit code $LASTEXITCODE."
           }
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: windows-exe
-          path: dist/*.exe
-          if-no-files-found: error
+      - name: Upload Windows file to the draft release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload $env:GITHUB_REF_NAME dist/*.exe `
+            --repo $env:GITHUB_REPOSITORY --clobber
 
   macos-dmg:
+    needs: prepare-release
     runs-on: macos-14
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build unsigned application and disk image
@@ -139,11 +176,15 @@ jobs:
             -srcfolder build/dmg \
             -ov -format UDZO \
             "dist/AI-Privacy-Studio-${APP_VERSION}-macos-arm64.dmg"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: macos-dmg
-          path: dist/*.dmg
-          if-no-files-found: error
+      - name: Upload macOS file to the draft release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload "$GITHUB_REF_NAME"
+          dist/*.dmg
+          --repo "$GITHUB_REPOSITORY"
+          --clobber
 
   publish-release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -152,20 +193,25 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          path: release-files
-          merge-multiple: true
-      - name: Create checksums
-        working-directory: release-files
-        run: sha256sum *.AppImage *.exe *.dmg *.tar.gz > SHA256SUMS.txt
-      - name: Publish GitHub release
+      - name: Download the complete draft and create checksums
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "$GITHUB_REF_NAME"
-          release-files/*
-          --repo "$GITHUB_REPOSITORY"
-          --title "AI Privacy Studio ${GITHUB_REF_NAME}"
-          --generate-notes
-          --verify-tag
+        run: |
+          mkdir release-files
+          gh release download "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir release-files
+          cd release-files
+          sha256sum *.AppImage *.exe *.dmg *.tar.gz > SHA256SUMS.txt
+          test "$(wc -l < SHA256SUMS.txt)" -eq 4
+      - name: Publish the complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$GITHUB_REF_NAME" \
+            release-files/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+          gh release edit "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft=false

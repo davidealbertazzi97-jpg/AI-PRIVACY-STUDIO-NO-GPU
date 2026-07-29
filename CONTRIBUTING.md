@@ -27,4 +27,4 @@ tokens, passphrases, model weights, generated volumes, or application state.
 - Keep third-party code and binaries under their original licenses.
 
 By submitting a contribution, you agree that it may be distributed under the
-repository's Apache License 2.0.
+repository's GNU GPL version 3 only.

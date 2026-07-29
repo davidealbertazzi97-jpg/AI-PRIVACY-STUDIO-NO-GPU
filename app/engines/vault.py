@@ -102,21 +102,25 @@ def encrypt_to_vault(
 ) -> tuple[Path, dict[str, Any]]:
     progress(0.08, "Preparazione volume Picocrypt")
     stage = Path(tempfile.mkdtemp(prefix="picocrypt-", dir=PATHS.work))
-    staged = stage / safe_name(path.name)
-    shutil.copy2(path, staged)
-    progress(0.18, "Cifratura Picocrypt in corso")
-    encrypted, _ = _run_picocrypt(
-        staged,
-        password,
-        decrypt=False,
-        paranoid=paranoid,
-        recovery=recovery,
-    )
-    target_name = f"{path.stem}-{os.urandom(4).hex()}{path.suffix}.pcv"
-    target = PATHS.vault / safe_name(target_name)
-    shutil.move(encrypted, target)
-    os.chmod(target, 0o600)
-    shutil.rmtree(stage, ignore_errors=True)
+    try:
+        staged = stage / safe_name(path.name)
+        shutil.copy2(path, staged)
+        progress(0.18, "Cifratura Picocrypt in corso")
+        encrypted, _ = _run_picocrypt(
+            staged,
+            password,
+            decrypt=False,
+            paranoid=paranoid,
+            recovery=recovery,
+        )
+        target_name = f"{path.stem}-{os.urandom(4).hex()}{path.suffix}.pcv"
+        target = PATHS.vault / safe_name(target_name)
+        shutil.move(encrypted, target)
+        os.chmod(target, 0o600)
+    finally:
+        # This directory contains a plaintext copy. Remove it after every exit,
+        # including incorrect passwords and interrupted subprocesses.
+        shutil.rmtree(stage, ignore_errors=True)
     progress(0.96, "Volume salvato nella cassaforte")
     return target, {
         "engine": "Picocrypt CLI 1.49",
@@ -137,16 +141,20 @@ def decrypt_from_vault(
         raise RuntimeError("Per decifrare serve un volume Picocrypt .pcv.")
     progress(0.08, "Preparazione volume Picocrypt")
     stage = Path(tempfile.mkdtemp(prefix="picocrypt-", dir=PATHS.work))
-    staged = stage / safe_name(path.name)
-    shutil.copy2(path, staged)
-    progress(0.18, "Decifratura Picocrypt in corso")
-    decrypted, _ = _run_picocrypt(staged, password, decrypt=True)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    target = output_dir / safe_name(decrypted.name)
-    if target.exists():
-        target = output_dir / f"{target.stem}-{os.urandom(3).hex()}{target.suffix}"
-    shutil.move(decrypted, target)
-    shutil.rmtree(stage, ignore_errors=True)
+    try:
+        staged = stage / safe_name(path.name)
+        shutil.copy2(path, staged)
+        progress(0.18, "Decifratura Picocrypt in corso")
+        decrypted, _ = _run_picocrypt(staged, password, decrypt=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        target = output_dir / safe_name(decrypted.name)
+        if target.exists():
+            target = output_dir / f"{target.stem}-{os.urandom(3).hex()}{target.suffix}"
+        shutil.move(decrypted, target)
+    finally:
+        # A successful decryption creates plaintext in this staging directory.
+        # Remove it even if a later filesystem operation fails.
+        shutil.rmtree(stage, ignore_errors=True)
     progress(0.96, "File decifrato")
     return target, {
         "engine": "Picocrypt CLI 1.49",

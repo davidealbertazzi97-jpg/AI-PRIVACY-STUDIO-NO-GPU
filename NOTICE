@@ -1,6 +1,7 @@
-Privacy Studio Locale
-Copyright 2026 Privacy Studio contributors
+AI Privacy Studio (No GPU)
+Copyright (C) 2026 Davide Albertazzi
 
-This product includes third-party software, models, fonts, and icons that
-remain under their respective licenses. See THIRD_PARTY_NOTICES.md and the
-licenses directory for attribution and license information.
+Original project code and documentation are licensed under GNU GPL version 3
+only. This product also uses third-party software, models, fonts, icons, and
+installer runtimes that remain under their respective licenses. See
+THIRD_PARTY_NOTICES.md and the licenses directory.

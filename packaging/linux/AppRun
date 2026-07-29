@@ -1,0 +1,42 @@
+#!/bin/sh
+set -eu
+
+VERSION="1.0.0"
+APPDIR="${APPDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}"
+DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+INSTALL_ROOT="$DATA_HOME/ai-privacy-studio/app"
+PAYLOAD="$APPDIR/usr/share/ai-privacy-studio/source.tar"
+VERSION_FILE="$INSTALL_ROOT/.bundle-version"
+PENDING_FILE="$INSTALL_ROOT/.pending-bundle-version"
+
+umask 077
+mkdir -p -- "$INSTALL_ROOT"
+
+installed_version=""
+if [ -f "$VERSION_FILE" ]; then
+  installed_version="$(sed -n '1p' "$VERSION_FILE")"
+fi
+
+if [ "$installed_version" != "$VERSION" ]; then
+  tar -xf "$PAYLOAD" -C "$INSTALL_ROOT"
+  printf '%s\n' "$VERSION" >"$PENDING_FILE"
+fi
+
+if [ "$installed_version" != "$VERSION" ] || [ ! -x "$INSTALL_ROOT/.venv/bin/python" ]; then
+  first_run="$INSTALL_ROOT/packaging/linux/first-run.sh"
+  if command -v x-terminal-emulator >/dev/null 2>&1; then
+    exec x-terminal-emulator -e "$first_run"
+  fi
+  if command -v gnome-terminal >/dev/null 2>&1; then
+    exec gnome-terminal -- "$first_run"
+  fi
+  if command -v konsole >/dev/null 2>&1; then
+    exec konsole -e "$first_run"
+  fi
+  if command -v xterm >/dev/null 2>&1; then
+    exec xterm -e "$first_run"
+  fi
+  exec "$first_run"
+fi
+
+exec "$INSTALL_ROOT/start.sh"

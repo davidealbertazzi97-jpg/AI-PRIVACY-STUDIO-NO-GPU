@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import ipaddress
 import socket
-import sys
 from typing import Any
 
 _original_connect = socket.socket.connect
@@ -62,8 +61,6 @@ def guarded_create_connection(
     all_errors: bool = False,
 ) -> socket.socket:
     _deny(address)
-    if sys.version_info < (3, 11):
-        return _original_create_connection(address, timeout, source_address)
     return _original_create_connection(
         address,
         timeout,

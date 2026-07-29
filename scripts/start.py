@@ -222,17 +222,14 @@ def guarded_environment(
             "PYTHONUNBUFFERED": "1",
         }
     )
-    guard = str(APP_DIR / "runtime_guard")
-    current_pythonpath = environment.get("PYTHONPATH")
-    environment["PYTHONPATH"] = (
-        guard + os.pathsep + current_pythonpath if current_pythonpath else guard
-    )
+    # Do not inherit code-injection paths from the launching shell. Every Python
+    # child receives only Privacy Studio's audited network guard.
+    environment["PYTHONPATH"] = str(APP_DIR / "runtime_guard")
     native_guard = APP_DIR / "bin" / "libprivacy_studio_netguard.so"
     if sys.platform.startswith("linux") and native_guard.is_file():
-        current_preload = environment.get("LD_PRELOAD")
-        environment["LD_PRELOAD"] = str(native_guard) + (
-            f":{current_preload}" if current_preload else ""
-        )
+        environment["LD_PRELOAD"] = str(native_guard)
+    else:
+        environment.pop("LD_PRELOAD", None)
     return environment
 
 

@@ -54,7 +54,7 @@ def install_requirements(
 
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(
-        description="Installer riproducibile multipiattaforma di Privacy Studio."
+        description="Installer versionato multipiattaforma di Privacy Studio."
     )
     root.add_argument(
         "--without-glm",

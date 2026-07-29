@@ -1,166 +1,169 @@
 <p align="center">
-  <img src="static/icon.svg" width="88" height="88" alt="Privacy Studio">
+  <img src="static/icon.svg" width="88" height="88" alt="AI Privacy Studio">
 </p>
 
 <h1 align="center">AI Privacy Studio (No GPU)</h1>
 
 <p align="center">
-  <strong>Privacy locale per insegnanti e professionisti, senza GPU.</strong><br>
-  I documenti riservati restano sul tuo computer e non vengono inviati a
-  server esterni.
+  <strong>Local document processing for teachers and professionals.</strong><br>
+  Confidential documents stay on the computer. No GPU or cloud inference is
+  required.
 </p>
 
 <p align="center">
-  <strong>Italiano</strong> · <a href="README.en.md">English</a>
+  <a href="#english">English</a> · <a href="#italiano">Italiano</a>
 </p>
 
-## Cosa fa
+---
 
-**Privacy Studio Locale è nato nel mio homelab da una necessità personale:**
-gestire documenti riservati con strumenti IA locali su un normale computer,
-senza dipendere dal cloud o da una GPU costosa.
+<a id="english"></a>
 
-È pensato soprattutto per **insegnanti e professionisti** che lavorano con
-materiale sensibile e vogliono mantenerne il controllo. Funziona su hardware
-consumer di fascia medio-bassa, interamente su CPU: l'obiettivo è offrire un
-prodotto realmente accessibile a tutti.
+## English
 
-L'applicazione permette di elaborare documenti sensibili senza affidarne il
-contenuto a servizi cloud:
+AI Privacy Studio was created in a personal homelab to solve a practical
+problem: process confidential documents on ordinary, low- to mid-range
+consumer hardware without sending their contents to external servers.
 
-- interfaccia selezionabile in italiano o inglese, con preferenza memorizzata;
-- anonimizzazione assistita con OpenAI Privacy Filter e regole italiane;
-- trascrizione audio/video con NVIDIA Parakeet TDT 0.6B v3;
-- OCR con PaddleOCR, PP-StructureV3 o GLM-OCR tramite Ollama;
-- conversione di PDF e documenti Office con Microsoft MarkItDown;
-- cifratura e decifratura di volumi Picocrypt `.pcv`;
-- coda persistente e interfaccia responsive con asset serviti localmente.
+It is intended for teachers, independent professionals, small offices, and
+anyone who needs local OCR, transcription, redaction, conversion, or encrypted
+storage on a CPU-only computer.
 
-Il progetto è indipendente e non è affiliato ai produttori dei motori
-integrati.
+### Download
 
-## Installazione automatica
+Use the files attached to the
+[latest GitHub release](https://github.com/davidealbertazzi97-jpg/AI-PRIVACY-STUDIO-NO-GPU/releases/latest).
 
-Il profilo completo è predisposto per:
+| Platform | Download | Supported architecture |
+| --- | --- | --- |
+| Windows 10/11 | `AI-Privacy-Studio-Setup-1.0.0-windows-x86_64.exe` | x86-64 |
+| Linux | `AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage` | x86-64 |
+| macOS 13+ | `AI-Privacy-Studio-1.0.0-macos-arm64.dmg` | Apple Silicon |
 
-| Sistema | Architettura |
-| --- | --- |
-| Linux | x86-64 |
-| macOS | Apple Silicon (arm64) |
-| Windows 10/11 | x86-64 |
+These are online installers. They contain the audited project source, not the
+large models or downloaded runtimes. The first installation requires internet
+access, several gigabytes of disk space, and time. The default full profile
+installs GLM-OCR as well as the other engines.
 
-Su Linux o macOS:
+The packages are currently unsigned. Windows SmartScreen and macOS Gatekeeper
+may display a warning. Compare the file against `SHA256SUMS.txt` in the same
+release before running it.
+
+#### Windows
+
+Run the `.exe` as the normal user. Administrative privileges are not required.
+Leave the final installation option selected to download Python, the local
+engines, and the models. The Start menu and optional desktop shortcut launch
+the app afterward.
+
+#### Linux
 
 ```bash
-cd PrivacyStudio
-chmod +x install.sh start.sh
+chmod +x AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
+./AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
+```
+
+The first run opens a terminal for the verified installation. Later runs start
+the app directly.
+
+#### macOS
+
+Open the `.dmg`, copy **AI Privacy Studio** to Applications, then open the app.
+Because the package is not notarized, macOS may require an explicit approval
+through Finder or Privacy & Security settings.
+
+### Install from source
+
+```bash
+git clone https://github.com/davidealbertazzi97-jpg/AI-PRIVACY-STUDIO-NO-GPU.git
+cd AI-PRIVACY-STUDIO-NO-GPU
 ./install.sh
-```
-
-Su Windows, da PowerShell:
-
-```powershell
-cd PrivacyStudio
-.\install.ps1
-```
-
-Da Prompt dei comandi si può usare `install.cmd`; il wrapper applica
-l'eccezione alla policy PowerShell soltanto al proprio processo, senza
-modificare le impostazioni del sistema.
-
-Non occorre installare manualmente Python, `uv`, FFmpeg, Picocrypt, Ollama o i
-modelli. L'installer scarica `uv` e ne verifica il checksum, installa Python
-3.12 in modo gestito, crea tre ambienti isolati e prepara tutti i motori. I
-download diretti di Picocrypt e Ollama sono versionati e verificati con
-SHA-256. Parakeet e Privacy Filter sono fissati a commit precisi; il manifest
-GLM-OCR viene verificato tramite digest, mentre PaddleOCR deriva dalla release
-Python bloccata e viene validato con un'inferenza sintetica.
-
-L'installazione completa richiede la rete, tempo e diversi gigabyte di spazio.
-Per evitare il runtime Ollama e GLM-OCR, che da soli aggiungono circa 3 GB:
-
-```bash
-./install.sh --without-glm
-```
-
-In PowerShell si usa lo stesso flag con `.\install.ps1`. Per installare soltanto
-il nucleo leggero: `--core-only --skip-desktop`.
-
-Il profilo completo e gli smoke test dei motori sono stati verificati su Linux
-x86-64. Il nucleo viene verificato dalla CI anche su macOS e Windows; le
-combinazioni indicate seguono le wheel ufficiali di PyTorch, PaddlePaddle e
-degli altri componenti. NVIDIA indica Linux come sistema preferito per
-Parakeet, quindi la trascrizione sui due sistemi non-Linux va considerata
-supporto best effort finché non sarà coperta da test hardware completi.
-
-## Avvio
-
-Su Linux/macOS:
-
-```bash
 ./start.sh
 ```
 
-Su Windows:
+On Windows, run `.\install.ps1` and then `.\start.ps1` in PowerShell.
 
-```powershell
-.\start.ps1
-```
+The full installer prepares:
 
-Da Prompt dei comandi è disponibile anche `start.cmd`.
+- managed Python 3.12 and isolated environments;
+- Microsoft MarkItDown;
+- OpenAI Privacy Filter;
+- NVIDIA Parakeet TDT 0.6B v3;
+- PaddleOCR and PP-StructureV3;
+- Ollama and GLM-OCR Q8;
+- FFmpeg and Picocrypt CLI.
 
-Il launcher genera una chiave privata, avvia gli eventuali servizi locali,
-attende il controllo di salute e apre il browser. `Ctrl+C` arresta i processi
-avviati dalla sessione. Su Linux l'installer può inoltre creare la voce
-**Privacy Studio Locale** nel menu applicazioni.
+Use `--without-glm` only when disk space matters more than the GLM-OCR option.
+Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 
-## Privacy e limiti di sicurezza
+### Functions
 
-Il server ascolta soltanto su `127.0.0.1` e ogni API richiede un token casuale.
-I processi Python ricevono un guard multipiattaforma che rifiuta connessioni
-non loopback; su Linux viene aggiunto, quando compilabile, un secondo guard
-nativo. Il launcher avvia un'istanza Ollama privata su una porta loopback
-dedicata, con le funzioni cloud disattivate, e non riutilizza eventuali server
-Ollama di sistema. Non ci sono telemetria, CDN o inferenza remota.
+- Italian or English interface with a saved local preference.
+- PII redaction using OpenAI Privacy Filter and deterministic Italian patterns.
+- Audio and video transcription with NVIDIA Parakeet.
+- OCR for images and multi-page PDF files with PaddleOCR, PP-StructureV3, or
+  GLM-OCR.
+- Office, PDF, HTML, EPUB, and structured-data conversion with MarkItDown.
+- Picocrypt-compatible `.pcv` encryption and decryption.
+- Persistent local job queue and downloadable result bundles.
 
-La rete è consentita durante l'installazione per ottenere software e modelli.
-Al runtime i motori usano file e cache locali. Il browser predefinito rimane un
-programma esterno e può effettuare il proprio traffico di background; il server
-non gli espone contenuti su interfacce di rete esterne.
+### Privacy and security model
 
-Gli originali non vengono sovrascritti. Le copie di lavoro vengono eliminate
-al termine del job e le passphrase Picocrypt rimangono soltanto in RAM durante
-l'operazione.
+- The service binds to `127.0.0.1` only.
+- Every API request requires a random per-installation token.
+- Runtime Python processes reject non-loopback network connections.
+- Linux adds a native outbound-network guard when available.
+- Ollama runs as a dedicated loopback-only process with cloud features
+  disabled.
+- The interface contains no telemetry, CDN asset, or remote inference call.
+- Original files are not overwritten.
+- Working plaintext and uploaded copies are removed after each job, including
+  error paths covered by the test suite.
+- Picocrypt passphrases remain in memory only while an operation is running.
+- Public redaction reports contain labels and positions, not fragments of the
+  detected private values.
 
-> [!WARNING]
-> L'anonimizzazione automatica riduce il rischio, ma non garantisce che ogni
-> dato personale venga riconosciuto né costituisce una verifica di conformità
-> legale. Controlla sempre il risultato prima di condividerlo.
+Network access is required during installation to download verified software
+and pinned models. The default browser is outside the application's network
+guard and may perform its own background traffic.
 
-## Dati locali
+Automated redaction, OCR, and transcription can be wrong. Review every output
+before sharing it. Local processing does not by itself establish GDPR or other
+regulatory compliance.
 
-| Sistema | Dati e cassaforte | Token e log | Risultati |
-| --- | --- | --- | --- |
-| Linux | `~/.local/share/privacy-studio` | `~/.config/privacy-studio` | `~/Documents/Privacy Studio - Results` |
-| macOS | `~/Library/Application Support/Privacy Studio` | stessa cartella | `~/Documents/Privacy Studio - Results` |
-| Windows | `%LOCALAPPDATA%\Privacy Studio` | stessa cartella | `%USERPROFILE%\Documents\Privacy Studio - Results` |
+### Local data
 
-Su un sistema Linux italiano che possiede `~/Documenti` ma non `~/Documents`,
-il launcher usa automaticamente la cartella localizzata. Gli artefatti
-scaricati (`.venv*`, `bin`, `models`) sono esclusi da Git.
+| Platform | Application data and vault | Results |
+| --- | --- | --- |
+| Linux | `~/.local/share/privacy-studio` | `~/Documents/Privacy Studio - Results` |
+| macOS | `~/Library/Application Support/Privacy Studio` | `~/Documents/Privacy Studio - Results` |
+| Windows | `%LOCALAPPDATA%\Privacy Studio` | `%USERPROFILE%\Documents\Privacy Studio - Results` |
 
-## Installazione tramite agente IA
+The AppImage launcher source is copied to
+`$XDG_DATA_HOME/ai-privacy-studio/app`. The macOS app uses
+`~/Library/Application Support/AI Privacy Studio/app`. Model caches and results
+remain outside Git.
 
-Chi usa un agente di coding può copiare il prompt già pronto:
+### Repository control files
 
-- [prompt in italiano](docs/CODING_AGENT_PROMPT.it.md);
-- [English prompt](docs/CODING_AGENT_PROMPT.en.md).
+`.gitignore` is intentionally included: it prevents environments, models,
+tokens, databases, logs, encrypted volumes, and results from being committed.
+`.github/` contains only CI, dependency-update, and installer-build workflows.
+The `.git` directory itself is never tracked or included in GitHub source
+archives or release installers.
 
-Il prompt ordina all'agente di rilevare sistema e architettura, usare
-l'installer ufficiale, non richiedere privilegi amministrativi, eseguire i
-test locali e non caricare documenti o segreti.
+### License
 
-## Sviluppo e test
+Original project code and documentation are licensed under
+[GNU GPL version 3 only](LICENSE) (`GPL-3.0-only`). Distributed modified
+versions must remain under GPLv3 and provide their corresponding source.
+Third-party assets, libraries, models, and separate programs keep their own
+licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
+[LICENSE-GUIDE.md](LICENSE-GUIDE.md).
+
+This licensing summary is technical information, not legal advice. It assumes
+the project owner holds the copyright in the original project code.
+
+### Development and verification
 
 ```bash
 ./scripts/check.sh
@@ -169,57 +172,167 @@ test locali e non caricare documenti o segreti.
 .venv/bin/python tests/smoke_local.py --skip-glm
 ```
 
-I test usano soltanto documenti sintetici in directory temporanee. Il primo
-comando esegue controlli statici; gli altri provano rispettivamente nucleo,
-motori leggeri e profilo completo escluso GLM-OCR.
+Tests use synthetic fixtures only. Security reports should follow
+[SECURITY.md](SECURITY.md), not a public issue.
 
-## Struttura
+---
 
-```text
-app/             API, coda e orchestrazione
-workers/         processi isolati per AI e PaddleOCR
-static/          interfaccia e asset locali
-runtime_guard/   blocco di rete Python multipiattaforma
-native/          guard di rete aggiuntivo per Linux
-scripts/         bootstrap, avvio e controlli
-packaging/       integrazione desktop Linux
-tests/           smoke test con fixture sintetiche
+<a id="italiano"></a>
+
+## Italiano
+
+AI Privacy Studio è nato nel mio homelab da una necessità concreta: elaborare
+documenti riservati su hardware consumer di fascia medio-bassa senza inviarne
+il contenuto a server esterni.
+
+È pensato per insegnanti, liberi professionisti, piccoli uffici e per chiunque
+abbia bisogno di OCR, trascrizione, anonimizzazione, conversione o archiviazione
+cifrata in locale su un computer privo di GPU.
+
+### Download
+
+Usa i file allegati alla
+[release GitHub più recente](https://github.com/davidealbertazzi97-jpg/AI-PRIVACY-STUDIO-NO-GPU/releases/latest).
+
+| Sistema | Download | Architettura supportata |
+| --- | --- | --- |
+| Windows 10/11 | `AI-Privacy-Studio-Setup-1.0.0-windows-x86_64.exe` | x86-64 |
+| Linux | `AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage` | x86-64 |
+| macOS 13+ | `AI-Privacy-Studio-1.0.0-macos-arm64.dmg` | Apple Silicon |
+
+Sono installer online. Contengono il sorgente verificato del progetto, non i
+modelli e i runtime di grandi dimensioni. La prima installazione richiede la
+rete, diversi gigabyte di spazio e tempo. Il profilo completo predefinito
+installa anche GLM-OCR.
+
+I pacchetti al momento non sono firmati. Windows SmartScreen e macOS Gatekeeper
+possono mostrare un avviso. Prima di eseguirli confronta il file con
+`SHA256SUMS.txt` pubblicato nella stessa release.
+
+#### Windows
+
+Esegui il file `.exe` come utente normale. Non servono privilegi amministrativi.
+Lascia selezionata l'opzione finale per scaricare Python, i motori locali e i
+modelli. In seguito l'app si avvia dal menu Start o dal collegamento facoltativo
+sul desktop.
+
+#### Linux
+
+```bash
+chmod +x AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
+./AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
 ```
 
-## Licenza
+Al primo avvio viene aperto un terminale per l'installazione verificata. Gli
+avvii successivi aprono direttamente l'app.
 
-Il codice originale è distribuito sotto
-[Apache License 2.0](LICENSE). È una licenza open source permissiva che
-consente uso, modifica e ridistribuzione, include una concessione esplicita di
-brevetti e contiene esclusioni di garanzia e limitazioni di responsabilità.
-Richiede di conservare licenza e avvisi e di segnalare i file modificati.
+#### macOS
 
-È stata preferita alla 0BSD per la tutela brevettuale esplicita, pur restando
-molto permissiva. Le dipendenze mantengono le loro licenze: Picocrypt CLI è un
-programma separato GPL-3.0-only scaricato dall'utente tramite installer; anche
-il binario FFmpeg fornito dalla wheel ispezionata è un processo separato GPL;
-Parakeet è CC-BY-4.0; Inter è OFL-1.1 e Lucide è ISC. Consulta
-[gli avvisi di terze parti](THIRD_PARTY_NOTICES.md).
+Apri il file `.dmg`, copia **AI Privacy Studio** in Applicazioni e avvia l'app.
+Poiché il pacchetto non è notarizzato, macOS può richiedere un'approvazione
+esplicita dal Finder o dalle impostazioni Privacy e sicurezza.
 
-Questa è una valutazione tecnica prudenziale, non un parere legale. Il
-repository sorgente non include ambienti Python, modelli o binari scaricati.
-Chi distribuisce un pacchetto binario già assemblato deve rigenerare
-l'inventario e rispettare anche gli obblighi dei singoli artefatti inclusi.
+### Installazione dal sorgente
 
-## Avvertenze
+```bash
+git clone https://github.com/davidealbertazzi97-jpg/AI-PRIVACY-STUDIO-NO-GPU.git
+cd AI-PRIVACY-STUDIO-NO-GPU
+./install.sh
+./start.sh
+```
 
-Questo è un progetto personale e sperimentale, realizzato anche tramite
-"vibe coding" assistito dall'intelligenza artificiale e reso disponibile
-gratuitamente. È fornito "così com'è", senza garanzie; l'uso è a rischio
-dell'utente e l'autore e i contributori non si assumono responsabilità nei
-limiti massimi consentiti dalla legge.
+Su Windows esegui `.\install.ps1` e poi `.\start.ps1` in PowerShell.
 
-Anonimizzazione, OCR e trascrizione possono sbagliare: ogni risultato va
-controllato manualmente prima di essere usato o condiviso. Leggi le
-[avvertenze complete in italiano](DISCLAIMER.md) o
-[in inglese](DISCLAIMER.en.md).
+L'installazione completa prepara:
 
-## Contribuire e sicurezza
+- Python 3.12 gestito e ambienti isolati;
+- Microsoft MarkItDown;
+- OpenAI Privacy Filter;
+- NVIDIA Parakeet TDT 0.6B v3;
+- PaddleOCR e PP-StructureV3;
+- Ollama e GLM-OCR Q8;
+- FFmpeg e Picocrypt CLI.
 
-Prima di contribuire leggi [CONTRIBUTING.md](CONTRIBUTING.md). Per le
-vulnerabilità segui [SECURITY.md](SECURITY.md) senza aprire issue pubbliche.
+Usa `--without-glm` soltanto se vuoi ridurre l'uso del disco rinunciando a
+GLM-OCR. Usa `--core-only --skip-desktop` per il profilo leggero dedicato alla
+conversione.
+
+### Funzioni
+
+- Interfaccia in italiano o inglese con preferenza salvata in locale.
+- Anonimizzazione PII con OpenAI Privacy Filter e regole italiane
+  deterministiche.
+- Trascrizione audio e video con NVIDIA Parakeet.
+- OCR di immagini e PDF multipagina con PaddleOCR, PP-StructureV3 o GLM-OCR.
+- Conversione di Office, PDF, HTML, EPUB e dati strutturati con MarkItDown.
+- Cifratura e decifratura compatibile con volumi Picocrypt `.pcv`.
+- Coda locale persistente e pacchetti di risultati scaricabili.
+
+### Modello di privacy e sicurezza
+
+- Il servizio ascolta soltanto su `127.0.0.1`.
+- Ogni richiesta API richiede un token casuale dell'installazione.
+- I processi Python rifiutano connessioni di rete non loopback.
+- Su Linux viene aggiunto un guard nativo quando disponibile.
+- Ollama usa un processo dedicato, solo loopback, con funzioni cloud disattivate.
+- L'interfaccia non contiene telemetria, CDN o chiamate di inferenza remota.
+- Gli originali non vengono sovrascritti.
+- Le copie di lavoro in chiaro e gli upload vengono eliminati al termine del
+  job, anche nei percorsi di errore coperti dai test.
+- Le passphrase Picocrypt restano in memoria soltanto durante l'operazione.
+- I rapporti di anonimizzazione pubblici contengono etichette e posizioni, non
+  frammenti dei valori privati rilevati.
+
+La rete serve durante l'installazione per scaricare software verificato e
+modelli bloccati a versioni precise. Il browser predefinito è esterno al guard
+dell'applicazione e può generare traffico proprio in background.
+
+Anonimizzazione, OCR e trascrizione automatici possono sbagliare. Controlla ogni
+risultato prima di condividerlo. L'elaborazione locale non dimostra da sola la
+conformità al GDPR o ad altre norme.
+
+### Dati locali
+
+| Sistema | Dati applicativi e cassaforte | Risultati |
+| --- | --- | --- |
+| Linux | `~/.local/share/privacy-studio` | `~/Documents/Privacy Studio - Results` |
+| macOS | `~/Library/Application Support/Privacy Studio` | `~/Documents/Privacy Studio - Results` |
+| Windows | `%LOCALAPPDATA%\Privacy Studio` | `%USERPROFILE%\Documents\Privacy Studio - Results` |
+
+Il launcher AppImage copia il sorgente in
+`$XDG_DATA_HOME/ai-privacy-studio/app`. L'app macOS usa
+`~/Library/Application Support/AI Privacy Studio/app`. Cache dei modelli e
+risultati restano fuori da Git.
+
+### File di controllo del repository
+
+`.gitignore` è incluso intenzionalmente: impedisce di aggiungere a Git ambienti,
+modelli, token, database, log, volumi cifrati e risultati. `.github/` contiene
+soltanto workflow di CI, aggiornamento dipendenze e costruzione degli installer.
+La directory `.git` non è tracciata e non viene inserita negli archivi sorgente
+di GitHub né negli installer della release.
+
+### Licenza
+
+Il codice e la documentazione originali sono distribuiti sotto
+[GNU GPL versione 3 soltanto](LICENSE) (`GPL-3.0-only`). Le versioni modificate
+distribuite devono restare sotto GPLv3 e rendere disponibile il sorgente
+corrispondente. Asset, librerie, modelli e programmi separati di terze parti
+mantengono le loro licenze; consulta
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) e
+[LICENSE-GUIDE.md](LICENSE-GUIDE.md).
+
+Questo riepilogo è un'analisi tecnica, non un parere legale. Presuppone che il
+titolare del progetto possieda i diritti sul codice originale.
+
+### Sviluppo e verifica
+
+```bash
+./scripts/check.sh
+.venv/bin/python tests/smoke_local.py --core-only
+.venv/bin/python tests/smoke_local.py --skip-heavy
+.venv/bin/python tests/smoke_local.py --skip-glm
+```
+
+I test usano soltanto fixture sintetiche. Per segnalazioni di sicurezza segui
+[SECURITY.md](SECURITY.md), senza aprire una issue pubblica.

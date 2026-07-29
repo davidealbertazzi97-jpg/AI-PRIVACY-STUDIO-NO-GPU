@@ -1,0 +1,171 @@
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  APP_VERSION: "1.0.0"
+
+jobs:
+  linux-appimage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Build source payload
+        run: |
+          mkdir -p build/AppDir/usr/share/ai-privacy-studio dist
+          git archive \
+            --format=tar \
+            --output=build/AppDir/usr/share/ai-privacy-studio/source.tar \
+            HEAD -- \
+            app licenses native packaging runtime_guard scripts static workers \
+            CHANGELOG.md CONTRIBUTING.md DISCLAIMER.md LICENSE NOTICE README.md \
+            SECURITY.md THIRD_PARTY_NOTICES.md install.cmd install.ps1 install.sh \
+            pyproject.toml requirements-ai.txt requirements-core.txt \
+            requirements-dev.txt requirements-paddle.txt \
+            start.cmd start.ps1 start.sh
+          install -Dm755 packaging/linux/AppRun build/AppDir/AppRun
+          install -Dm644 static/icon.svg build/AppDir/ai-privacy-studio.svg
+          install -Dm644 LICENSE build/AppDir/LICENSE
+          install -Dm644 THIRD_PARTY_NOTICES.md build/AppDir/THIRD_PARTY_NOTICES.md
+          install -Dm644 packaging/INSTALLER_NOTICE.en-it.txt build/AppDir/INSTALLER_NOTICE.en-it.txt
+          install -Dm644 packaging/linux/ai-privacy-studio.desktop build/AppDir/ai-privacy-studio.desktop
+      - name: Build AppImage with pinned appimagetool
+        env:
+          APPIMAGETOOL_SHA256: a6d71e2b6cd66f8e8d16c37ad164658985e0cf5fcaa950c90a482890cb9d13e0
+          APPIMAGE_RUNTIME_SHA256: 1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf
+          APPIMAGE_RUNTIME_COMMIT: 75849dce7cc37e4319b633df1f116ca895c71a12
+        run: |
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output build/appimagetool.AppImage \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          echo "$APPIMAGETOOL_SHA256  build/appimagetool.AppImage" | sha256sum --check
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output build/runtime-x86_64 \
+            https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64
+          echo "$APPIMAGE_RUNTIME_SHA256  build/runtime-x86_64" | sha256sum --check
+          chmod +x build/appimagetool.AppImage
+          ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 build/appimagetool.AppImage \
+            --runtime-file build/runtime-x86_64 \
+            build/AppDir "dist/AI-Privacy-Studio-${APP_VERSION}-linux-x86_64.AppImage"
+          git clone https://github.com/AppImage/type2-runtime.git build/type2-runtime-source
+          git -C build/type2-runtime-source checkout --detach "$APPIMAGE_RUNTIME_COMMIT"
+          git -C build/type2-runtime-source submodule update --init --recursive
+          test "$(git -C build/type2-runtime-source rev-parse HEAD)" = "$APPIMAGE_RUNTIME_COMMIT"
+          tar --exclude-vcs -czf \
+            "dist/AppImage-runtime-corresponding-source-${APPIMAGE_RUNTIME_COMMIT}.tar.gz" \
+            -C build/type2-runtime-source .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux-appimage
+          path: |
+            dist/*.AppImage
+            dist/AppImage-runtime-corresponding-source-*.tar.gz
+          if-no-files-found: error
+
+  windows-exe:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Build per-user installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $sourceRoot = Join-Path $env:RUNNER_TEMP "privacy-studio-source"
+          $sourceArchive = Join-Path $env:RUNNER_TEMP "privacy-studio-source.zip"
+          $paths = @(
+            "app", "licenses", "native", "packaging", "runtime_guard", "scripts",
+            "static", "workers", "CHANGELOG.md", "CONTRIBUTING.md",
+            "DISCLAIMER.md", "LICENSE", "NOTICE", "README.md", "SECURITY.md",
+            "THIRD_PARTY_NOTICES.md", "install.cmd", "install.ps1", "install.sh",
+            "pyproject.toml", "requirements-ai.txt", "requirements-core.txt",
+            "requirements-dev.txt", "requirements-paddle.txt", "start.cmd",
+            "start.ps1", "start.sh"
+          )
+          & git archive --format=zip --output=$sourceArchive HEAD -- $paths
+          if ($LASTEXITCODE -ne 0) {
+            throw "Could not create the tracked runtime source archive."
+          }
+          Expand-Archive -Path $sourceArchive -DestinationPath $sourceRoot
+          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $compiler)) {
+            throw "Inno Setup 6 is not available on the runner."
+          }
+          & $compiler `
+            "/DSourceRoot=$sourceRoot" `
+            "/DOutputRoot=$PWD\dist" `
+            "$sourceRoot\packaging\windows\PrivacyStudio.iss"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup failed with exit code $LASTEXITCODE."
+          }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-exe
+          path: dist/*.exe
+          if-no-files-found: error
+
+  macos-dmg:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Build unsigned application and disk image
+        run: |
+          app="build/dmg/AI Privacy Studio.app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" dist
+          git archive \
+            --format=tar \
+            --output="$app/Contents/Resources/source.tar" \
+            HEAD -- \
+            app licenses native packaging runtime_guard scripts static workers \
+            CHANGELOG.md CONTRIBUTING.md DISCLAIMER.md LICENSE NOTICE README.md \
+            SECURITY.md THIRD_PARTY_NOTICES.md install.cmd install.ps1 install.sh \
+            pyproject.toml requirements-ai.txt requirements-core.txt \
+            requirements-dev.txt requirements-paddle.txt \
+            start.cmd start.ps1 start.sh
+          install -m 755 packaging/macos/launcher "$app/Contents/MacOS/AI Privacy Studio"
+          install -m 644 packaging/macos/Info.plist "$app/Contents/Info.plist"
+          install -m 644 LICENSE "$app/Contents/Resources/LICENSE"
+          install -m 644 THIRD_PARTY_NOTICES.md "$app/Contents/Resources/THIRD_PARTY_NOTICES.md"
+          install -m 644 packaging/INSTALLER_NOTICE.en-it.txt "$app/Contents/Resources/INSTALLER_NOTICE.en-it.txt"
+          ln -s /Applications build/dmg/Applications
+          plutil -lint "$app/Contents/Info.plist"
+          hdiutil create \
+            -volname "AI Privacy Studio ${APP_VERSION}" \
+            -srcfolder build/dmg \
+            -ov -format UDZO \
+            "dist/AI-Privacy-Studio-${APP_VERSION}-macos-arm64.dmg"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: macos-dmg
+          path: dist/*.dmg
+          if-no-files-found: error
+
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux-appimage, windows-exe, macos-dmg]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: release-files
+          merge-multiple: true
+      - name: Create checksums
+        working-directory: release-files
+        run: sha256sum *.AppImage *.exe *.dmg *.tar.gz > SHA256SUMS.txt
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          release-files/*
+          --repo "$GITHUB_REPOSITORY"
+          --title "AI Privacy Studio ${GITHUB_REF_NAME}"
+          --generate-notes
+          --verify-tag

@@ -196,18 +196,6 @@ def remove_overlaps(spans: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return selected
 
 
-def mask_preview(value: str) -> str:
-    value = value.strip()
-    if not value:
-        return "•••"
-    if "@" in value:
-        left, _, domain = value.partition("@")
-        return f"{left[:1]}•••@{domain[:1]}•••"
-    if len(value) <= 3:
-        return "•" * len(value)
-    return value[:1] + "•" * min(8, len(value) - 2) + value[-1:]
-
-
 def apply_redactions(
     text: str, spans: list[dict[str, Any]]
 ) -> tuple[str, list[dict[str, Any]], Counter[str]]:
@@ -237,7 +225,6 @@ def apply_redactions(
                 "start": span["start"],
                 "end": span["end"],
                 "placeholder": placeholder,
-                "preview": mask_preview(value),
                 "source": span["source"],
             }
         )

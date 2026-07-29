@@ -15,4 +15,8 @@ All notable changes to Privacy Studio Locale will be documented here.
 - Managed Python, FFmpeg, Picocrypt, Ollama, and model downloads.
 - Cross-platform launcher and Python outbound-network guard.
 - Dedicated loopback-only Ollama process with cloud features disabled.
-- Apache-2.0 licensing with a detailed third-party inventory.
+- GPL-3.0-only licensing with a detailed third-party inventory.
+- Bilingual, user-oriented README with release installer instructions.
+- Online `.exe`, `.AppImage`, and `.dmg` release packages.
+- Cleanup of Picocrypt plaintext staging on every error path.
+- Redaction reports no longer include partial previews of detected private data.

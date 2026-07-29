@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AI Privacy Studio (No GPU)
+Name[it]=AI Privacy Studio (Senza GPU)
+Comment=Process confidential documents locally on CPU-only hardware
+Comment[it]=Elabora documenti riservati in locale su hardware senza GPU
+Exec=AppRun
+Icon=ai-privacy-studio
+Terminal=false
+Categories=Office;
+Keywords=privacy;OCR;transcription;redaction;encryption;
+Keywords[it]=privacy;OCR;trascrizione;anonimizzazione;cifratura;
+StartupNotify=true

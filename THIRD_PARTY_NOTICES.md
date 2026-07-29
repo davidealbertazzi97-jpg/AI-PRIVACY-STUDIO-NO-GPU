@@ -1,6 +1,6 @@
 # Third-party notices
 
-Privacy Studio Locale is licensed under the Apache License 2.0. That license
+AI Privacy Studio is licensed under GNU GPL version 3 only. That license
 applies only to the original code and documentation in this repository.
 Dependencies, models, fonts, icons, and external programs remain under their
 respective licenses.
@@ -23,7 +23,9 @@ remote font service is contacted at runtime.
 
 The repository does not commit virtual environments or Python wheels. The
 installer obtains these packages from their upstream distribution channels.
-The lock-style requirements files contain the versions used by this release.
+The requirements files pin direct dependencies used by this release.
+Transitive resolutions can vary by supported platform and must be inventoried
+again when distributing a preassembled environment.
 
 | Component | Version/reference | License |
 | --- | ---: | --- |
@@ -75,7 +77,7 @@ download them into user caches.
 
 ## Separate external programs
 
-These programs are not part of the Apache-2.0-licensed source code. They
+These programs are not part of the GPL-3.0-only project code. They
 communicate with Privacy Studio through command-line arguments, pipes, or a
 loopback API and retain their own licenses.
 
@@ -91,6 +93,20 @@ The Free Software Foundation notes that command-line arguments are normally a
 communication mechanism between separate programs. Whether programs form one
 combined legal work ultimately depends on the facts and applicable law:
 <https://www.gnu.org/licenses/gpl-faq.html#MereAggregation>.
+
+## Installer container runtimes
+
+The release packages contain the project source and the two vendored interface
+assets above. Large downloaded runtimes, Python environments, model weights,
+Picocrypt, Ollama, and FFmpeg are not embedded in the `.exe`, `.AppImage`, or
+`.dmg`.
+
+| Component | Package | License/notice |
+| --- | --- | --- |
+| AppImage type-2 runtime | Linux `.AppImage` | MIT plus the statically linked notices listed in `licenses/APPIMAGE-RUNTIME-MIT.txt`. The release also provides `AppImage-runtime-corresponding-source-75849dce7cc37e4319b633df1f116ca895c71a12.tar.gz`. |
+| Official appimagetool | Linux package build only; not included in the release | MIT; `licenses/APPIMAGETOOL-MIT.txt` |
+| Inno Setup runtime | Windows `.exe` | Inno Setup License; `licenses/INNO-SETUP.txt` |
+| Apple `hdiutil` disk-image format | macOS `.dmg` | Built with the operating-system tool; no third-party runtime is added by this repository |
 
 ## Deliberate licensing boundary
 

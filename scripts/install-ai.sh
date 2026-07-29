@@ -6,7 +6,7 @@ python_bin="$(command -v "${PYTHON_BIN:-python3}")"
 uv_bin="$(command -v uv || true)"
 
 if [[ -z "$uv_bin" ]]; then
-  printf 'Privacy Studio richiede uv per installare il motore AI CPU in modo riproducibile.\n' >&2
+  printf 'Privacy Studio richiede uv per installare il motore AI CPU in un ambiente isolato.\n' >&2
   exit 1
 fi
 

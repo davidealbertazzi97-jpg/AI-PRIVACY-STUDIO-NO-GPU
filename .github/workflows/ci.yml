@@ -26,6 +26,7 @@ jobs:
           ruff format --check .
           bandit -q -c pyproject.toml -r app runtime_guard scripts workers
           python -m compileall -q app runtime_guard scripts tests workers
+          python -m unittest tests.test_security
           find scripts -type f -name '*.sh' -print0 |
             xargs -0 -n1 bash -n
           bash -n install.sh start.sh

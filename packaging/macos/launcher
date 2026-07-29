@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+VERSION="1.0.0"
+CONTENTS="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+INSTALL_ROOT="$HOME/Library/Application Support/AI Privacy Studio/app"
+PAYLOAD="$CONTENTS/Resources/source.tar"
+VERSION_FILE="$INSTALL_ROOT/.bundle-version"
+PENDING_FILE="$INSTALL_ROOT/.pending-bundle-version"
+
+umask 077
+mkdir -p -- "$INSTALL_ROOT"
+
+installed_version=""
+if [ -f "$VERSION_FILE" ]; then
+  installed_version="$(sed -n '1p' "$VERSION_FILE")"
+fi
+
+if [ "$installed_version" != "$VERSION" ]; then
+  tar -xf "$PAYLOAD" -C "$INSTALL_ROOT"
+  printf '%s\n' "$VERSION" >"$PENDING_FILE"
+fi
+
+if [ "$installed_version" != "$VERSION" ] || [ ! -x "$INSTALL_ROOT/.venv/bin/python" ]; then
+  exec /usr/bin/open "$INSTALL_ROOT/packaging/macos/first-run.command"
+fi
+
+exec "$INSTALL_ROOT/start.sh"

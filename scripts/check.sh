@@ -19,6 +19,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 python3 -m compileall -q app runtime_guard scripts tests workers
+python3 -m unittest tests.test_security
 python3 - <<'PY'
 import re
 from pathlib import Path

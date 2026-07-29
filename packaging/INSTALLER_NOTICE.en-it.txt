@@ -1,0 +1,27 @@
+AI Privacy Studio (No GPU) — installer notice
+
+This package contains the audited Privacy Studio source and starts its official
+installer. The first installation requires an internet connection, downloads
+several gigabytes of third-party software and models, and may take a long time
+on a CPU-only computer. Documents are not uploaded by the installer.
+
+The package is unsigned. Windows SmartScreen or macOS Gatekeeper may therefore
+show a warning. Verify the SHA-256 checksum published with the release before
+running it. The project is licensed under GPL-3.0-only; bundled third-party
+assets retain the licenses listed in THIRD_PARTY_NOTICES.md.
+
+---
+
+AI Privacy Studio (No GPU) — avviso dell'installer
+
+Questo pacchetto contiene il sorgente verificato di Privacy Studio e avvia il
+suo installer ufficiale. La prima installazione richiede una connessione
+Internet, scarica diversi gigabyte di software e modelli di terze parti e può
+richiedere molto tempo su un computer privo di GPU. L'installer non carica i
+documenti.
+
+Il pacchetto non è firmato. Windows SmartScreen o macOS Gatekeeper possono
+quindi mostrare un avviso. Prima dell'esecuzione verifica il checksum SHA-256
+pubblicato con la release. Il progetto usa la licenza GPL-3.0-only; gli asset
+di terze parti inclusi conservano le licenze elencate in
+THIRD_PARTY_NOTICES.md.

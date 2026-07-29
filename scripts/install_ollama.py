@@ -6,6 +6,7 @@ import json
 import os
 import platform
 import shutil
+import socket
 import subprocess
 import tarfile
 import tempfile
@@ -112,11 +113,17 @@ def find_ollama(root: Path) -> Path:
     return matches[0]
 
 
-def api_ready() -> bool:
+def free_port() -> int:
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        return int(listener.getsockname()[1])
+
+
+def api_ready(base_url: str) -> bool:
     try:
         # The endpoint is a fixed numeric loopback address.
         with urllib.request.urlopen(  # nosec B310
-            "http://127.0.0.1:11434/api/tags",
+            f"{base_url}/api/tags",
             timeout=2,
         ) as response:
             json.load(response)
@@ -125,11 +132,11 @@ def api_ready() -> bool:
         return False
 
 
-def installed_model_digest() -> str | None:
+def installed_model_digest(base_url: str) -> str | None:
     try:
         # The endpoint is a fixed numeric loopback address.
         with urllib.request.urlopen(  # nosec B310
-            "http://127.0.0.1:11434/api/tags",
+            f"{base_url}/api/tags",
             timeout=3,
         ) as response:
             payload = json.load(response)
@@ -142,55 +149,59 @@ def installed_model_digest() -> str | None:
 
 
 def pull_model(executable: Path, runtime_root: Path) -> None:
+    port = free_port()
+    base_url = f"http://127.0.0.1:{port}"
     environment = os.environ.copy()
     environment.update(
         {
-            "OLLAMA_HOST": "127.0.0.1:11434",
+            "OLLAMA_HOST": f"127.0.0.1:{port}",
             "OLLAMA_MODELS": str(APP_DIR / "models" / "ollama"),
+            "OLLAMA_NOHISTORY": "1",
         }
     )
-    server: subprocess.Popen[bytes] | None = None
     log_path = runtime_root / "ollama-install.log"
-    if not api_ready():
-        log = log_path.open("wb")
-        server = subprocess.Popen(
-            [str(executable), "serve"],
-            env=environment,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-        )
-        for _ in range(120):
-            if server.poll() is not None:
-                log.close()
-                detail = log_path.read_text(encoding="utf-8", errors="replace")
-                raise RuntimeError(f"Ollama non si è avviato:\n{detail[-2000:]}")
-            if api_ready():
-                break
-            time.sleep(0.5)
-        else:
-            server.terminate()
+    log = log_path.open("wb")
+    server = subprocess.Popen(
+        [str(executable), "serve"],
+        env=environment,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+    )
+    for _ in range(120):
+        if server.poll() is not None:
             log.close()
-            raise RuntimeError("Timeout durante l’avvio locale di Ollama.")
+            detail = log_path.read_text(encoding="utf-8", errors="replace")
+            raise RuntimeError(f"Ollama non si è avviato:\n{detail[-2000:]}")
+        if api_ready(base_url):
+            break
+        time.sleep(0.5)
+    else:
+        server.terminate()
+        try:
+            server.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            server.kill()
+        log.close()
+        raise RuntimeError("Timeout durante l’avvio locale di Ollama.")
     try:
         subprocess.run(
             [str(executable), "pull", MODEL],
             env=environment,
             check=True,
         )
-        actual_digest = installed_model_digest()
+        actual_digest = installed_model_digest(base_url)
         if actual_digest != MODEL_DIGEST:
             raise RuntimeError(
                 f"Digest del modello {MODEL} non valido: "
                 f"{actual_digest or 'non disponibile'}"
             )
     finally:
-        if server is not None:
-            server.terminate()
-            try:
-                server.wait(timeout=15)
-            except subprocess.TimeoutExpired:
-                server.kill()
-            log.close()
+        server.terminate()
+        try:
+            server.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            server.kill()
+        log.close()
 
 
 def main() -> int:

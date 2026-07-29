@@ -41,7 +41,9 @@ def _run_picocrypt(
         arguments.append("-p")
     if not decrypt and recovery:
         arguments.append("-r")
-    arguments.append(input_path.name)
+    # Prefix with an explicit relative path so a filename beginning with "-"
+    # cannot be interpreted as a Picocrypt command-line option.
+    arguments.append(os.path.join(".", input_path.name))
     spawn_options: dict[str, Any] = {
         "cwd": str(input_path.parent),
         "timeout": None,

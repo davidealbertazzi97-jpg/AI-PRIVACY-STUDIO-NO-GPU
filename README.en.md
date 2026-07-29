@@ -106,8 +106,9 @@ application menu.
 The server binds only to `127.0.0.1`, and every API requires a random token.
 Python processes receive a cross-platform guard that rejects non-loopback
 connections; Linux adds a second native guard when a C compiler is available.
-Ollama communicates through its loopback API only. There is no telemetry, CDN,
-or remote inference.
+The launcher starts a private Ollama instance on a dedicated loopback port with
+cloud features disabled; it does not reuse an existing system Ollama server.
+There is no telemetry, CDN, or remote inference.
 
 Network access is allowed during installation to obtain software and models.
 At runtime, engines use local files and caches. The default browser remains an

@@ -53,6 +53,7 @@ class Paths:
     outputs: Path
     state: Path
     database: Path
+    core_python: Path
     ai_python: Path
     paddle_python: Path
     picocrypt: Path
@@ -92,6 +93,7 @@ class Paths:
             outputs=outputs,
             state=state,
             database=data / "privacy-studio.sqlite3",
+            core_python=_venv_python(".venv"),
             ai_python=_venv_python(".venv-ai"),
             paddle_python=_venv_python(".venv-paddle"),
             picocrypt=APP_ROOT / "bin" / f"picocrypt{executable_suffix}",

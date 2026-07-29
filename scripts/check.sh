@@ -19,4 +19,13 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 python3 -m compileall -q app runtime_guard scripts tests workers
+python3 - <<'PY'
+from scripts.start import guarded_environment
+
+environment = guarded_environment("x" * 48, 54321, 54322)
+assert environment["OLLAMA_HOST"] == "127.0.0.1:54322"
+assert environment["PRIVACY_STUDIO_OLLAMA_URL"] == "http://127.0.0.1:54322"
+assert environment["OLLAMA_NO_CLOUD"] == "1"
+assert environment["HF_HUB_OFFLINE"] == "1"
+PY
 printf 'Controlli statici completati.\n'

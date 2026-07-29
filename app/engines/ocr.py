@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -13,6 +14,10 @@ from ..config import PATHS
 from ..utils import Progress, file_kind
 
 GLM_MODEL_DIGEST = "2a5a0f1a93017fc9db321ec196efb4b9bbba97c4d890df8e39429ed771f2ed25"
+OLLAMA_BASE_URL = os.environ.get(
+    "PRIVACY_STUDIO_OLLAMA_URL",
+    "http://127.0.0.1:11434",
+).rstrip("/")
 
 
 def _prepare_glm_image(path: Path, target: Path) -> Path:
@@ -85,17 +90,17 @@ def ocr_glm(
     pages_dir.mkdir(parents=True, exist_ok=True)
     pages = _render_pages(path, pages_dir, progress)
     parts: list[str] = []
-    endpoint = "http://127.0.0.1:11434/api/generate"
+    endpoint = f"{OLLAMA_BASE_URL}/api/generate"
 
     try:
-        tags = httpx.get("http://127.0.0.1:11434/api/tags", timeout=3.0).json()
+        tags = httpx.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=3.0).json()
         installed = {
             entry.get("name") or entry.get("model"): entry.get("digest")
             for entry in tags.get("models", [])
         }
     except Exception as exc:
         raise RuntimeError(
-            "Ollama non risponde su 127.0.0.1:11434. Avvialo e riprova."
+            "Il motore Ollama privato non risponde. Riavvia Privacy Studio."
         ) from exc
     if model not in installed:
         raise RuntimeError(

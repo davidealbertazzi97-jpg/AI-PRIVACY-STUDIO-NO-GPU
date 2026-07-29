@@ -333,7 +333,7 @@ def model_cached(pattern: str) -> bool:
 def status() -> dict[str, Any]:
     core_ok, core_detail = command_ok(
         [
-            str(PATHS.app / ".venv" / "bin" / "python"),
+            str(PATHS.core_python),
             "-c",
             "import markitdown, pypdfium2; print('pronto')",
         ]

@@ -14,4 +14,5 @@ All notable changes to Privacy Studio Locale will be documented here.
 - Verified bootstrap for Linux x86-64, macOS arm64, and Windows x86-64.
 - Managed Python, FFmpeg, Picocrypt, Ollama, and model downloads.
 - Cross-platform launcher and Python outbound-network guard.
+- Dedicated loopback-only Ollama process with cloud features disabled.
 - Apache-2.0 licensing with a detailed third-party inventory.

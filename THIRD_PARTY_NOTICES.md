@@ -81,7 +81,7 @@ loopback API and retain their own licenses.
 
 | Program | Use | License/distribution |
 | --- | --- | --- |
-| Picocrypt CLI 1.49 | `.pcv` encryption and decryption | GPL-3.0-only. The binary is excluded from Git, downloaded unmodified from the official release, verified by SHA-256, and invoked as a separate process. The installer also downloads and verifies its complete GPL license. |
+| [Picocrypt CLI 1.49](https://github.com/Picocrypt/CLI) | `.pcv` encryption and decryption | GPL-3.0-only. The binary is excluded from Git, downloaded unmodified from the official release, verified by SHA-256, and invoked as a separate process. The installer also downloads and verifies its complete GPL license. Its upstream repository has been archived since August 2025 and no longer receives maintenance updates. |
 | Ollama 0.32.5 | Local GLM-OCR runtime | MIT. Excluded from Git; the installer downloads an official unmodified archive and verifies its SHA-256 digest. |
 | FFmpeg 7.0.2 | Local audio normalization | The `imageio-ffmpeg` wheel supplies and Privacy Studio invokes it as a separate process. The inspected Linux x86-64 wheel reports `--enable-gpl --enable-version3`, making that executable GPL-3.0-or-later; other wheel builds must be checked individually. It is excluded from Git. |
 | uv 0.11.16 | Verified Python and environment bootstrap | Apache-2.0 OR MIT. Excluded from Git; the root installer downloads the official release and verifies its SHA-256 digest. |

@@ -108,8 +108,9 @@ avviati dalla sessione. Su Linux l'installer può inoltre creare la voce
 Il server ascolta soltanto su `127.0.0.1` e ogni API richiede un token casuale.
 I processi Python ricevono un guard multipiattaforma che rifiuta connessioni
 non loopback; su Linux viene aggiunto, quando compilabile, un secondo guard
-nativo. Ollama comunica esclusivamente tramite API loopback. Non ci sono
-telemetria, CDN o inferenza remota.
+nativo. Il launcher avvia un'istanza Ollama privata su una porta loopback
+dedicata, con le funzioni cloud disattivate, e non riutilizza eventuali server
+Ollama di sistema. Non ci sono telemetria, CDN o inferenza remota.
 
 La rete è consentita durante l'installazione per ottenere software e modelli.
 Al runtime i motori usano file e cache locali. Il browser predefinito rimane un

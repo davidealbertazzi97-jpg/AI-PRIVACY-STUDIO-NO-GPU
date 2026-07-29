@@ -150,14 +150,15 @@ def ollama_executable() -> Path | None:
     return Path(system) if system else None
 
 
-def ollama_is_ready() -> bool:
-    return get_json("http://127.0.0.1:11434/api/tags", timeout=2) is not None
+def ollama_is_ready(base_url: str) -> bool:
+    return get_json(f"{base_url}/api/tags", timeout=2) is not None
 
 
 def start_ollama(environment: dict[str, str]) -> subprocess.Popen[bytes] | None:
     executable = ollama_executable()
-    if executable is None or ollama_is_ready():
+    if executable is None:
         return None
+    base_url = f"http://{environment['OLLAMA_HOST']}"
     log_root = config_root()
     log_path = log_root / "ollama.log"
     log_path.touch(exist_ok=True)
@@ -177,7 +178,7 @@ def start_ollama(environment: dict[str, str]) -> subprocess.Popen[bytes] | None:
             log.close()
             detail = log_path.read_text(encoding="utf-8", errors="replace")
             raise RuntimeError(f"Ollama non si è avviato:\n{detail[-2000:]}")
-        if ollama_is_ready():
+        if ollama_is_ready(base_url):
             return process
         time.sleep(0.25)
     stop_process(process)
@@ -199,14 +200,21 @@ def stop_process(process: subprocess.Popen[Any] | None) -> None:
         log.close()
 
 
-def guarded_environment(token: str, port: int) -> dict[str, str]:
+def guarded_environment(
+    token: str,
+    port: int,
+    ollama_port: int,
+) -> dict[str, str]:
     environment = os.environ.copy()
     environment.update(
         {
             "PRIVACY_STUDIO_TOKEN": token,
             "PRIVACY_STUDIO_PORT": str(port),
-            "OLLAMA_HOST": "127.0.0.1:11434",
+            "PRIVACY_STUDIO_OLLAMA_URL": f"http://127.0.0.1:{ollama_port}",
+            "OLLAMA_HOST": f"127.0.0.1:{ollama_port}",
             "OLLAMA_MODELS": str(model_root()),
+            "OLLAMA_NO_CLOUD": "1",
+            "OLLAMA_NOHISTORY": "1",
             "HF_HOME": str(huggingface_root()),
             "HF_HUB_OFFLINE": "1",
             "TRANSFORMERS_OFFLINE": "1",
@@ -266,7 +274,8 @@ def main() -> int:
         if os.name != "nt":
             path.chmod(0o600)
 
-    environment = guarded_environment(token, port)
+    ollama_port = free_port()
+    environment = guarded_environment(token, port, ollama_port)
     ollama_process = start_ollama(environment)
     log_path = config_root() / "server.log"
     log_path.touch(exist_ok=True)

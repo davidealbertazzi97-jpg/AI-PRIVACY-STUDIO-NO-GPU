@@ -30,6 +30,16 @@ jobs:
             xargs -0 -n1 bash -n
           bash -n install.sh start.sh
           node --check static/app.js
+          python - <<'PY'
+          from scripts.start import guarded_environment
+
+          environment = guarded_environment("x" * 48, 54321, 54322)
+          assert environment["OLLAMA_HOST"] == "127.0.0.1:54322"
+          assert environment["PRIVACY_STUDIO_OLLAMA_URL"] == \
+              "http://127.0.0.1:54322"
+          assert environment["OLLAMA_NO_CLOUD"] == "1"
+          assert environment["HF_HUB_OFFLINE"] == "1"
+          PY
 
   core-smoke:
     strategy:

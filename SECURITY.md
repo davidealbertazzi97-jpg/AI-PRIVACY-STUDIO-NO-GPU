@@ -22,3 +22,7 @@ OpenAI Privacy Filter assists with data minimization. It does not guarantee
 anonymization, regulatory compliance, or removal of every sensitive datum.
 
 Picocrypt volumes cannot be recovered without the correct passphrase.
+The upstream Picocrypt CLI repository is archived and no longer receives
+maintenance updates. The installer pins and verifies version 1.49, but users
+with high-assurance requirements should evaluate this maintenance status
+before relying on it for new sensitive archives.

@@ -193,6 +193,18 @@ repository does not include downloaded Python environments, model weights, or
 binaries. Anyone distributing a preassembled binary package must regenerate
 the inventory and meet the obligations of every included artifact.
 
+## Disclaimer
+
+This is a personal and experimental project, created in part through
+AI-assisted "vibe coding" and made available free of charge. It is provided
+"as is", without warranties; use is at the user's own risk, and the author and
+contributors assume no liability to the maximum extent permitted by law.
+
+Redaction, OCR, and transcription can be wrong: every output must be reviewed
+manually before it is used or shared. Read the
+[complete disclaimer in English](DISCLAIMER.en.md) or
+[in Italian](DISCLAIMER.md).
+
 ## Contributing and security
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing. Follow

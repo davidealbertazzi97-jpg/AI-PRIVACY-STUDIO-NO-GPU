@@ -194,6 +194,19 @@ repository sorgente non include ambienti Python, modelli o binari scaricati.
 Chi distribuisce un pacchetto binario già assemblato deve rigenerare
 l'inventario e rispettare anche gli obblighi dei singoli artefatti inclusi.
 
+## Avvertenze
+
+Questo è un progetto personale e sperimentale, realizzato anche tramite
+"vibe coding" assistito dall'intelligenza artificiale e reso disponibile
+gratuitamente. È fornito "così com'è", senza garanzie; l'uso è a rischio
+dell'utente e l'autore e i contributori non si assumono responsabilità nei
+limiti massimi consentiti dalla legge.
+
+Anonimizzazione, OCR e trascrizione possono sbagliare: ogni risultato va
+controllato manualmente prima di essere usato o condiviso. Leggi le
+[avvertenze complete in italiano](DISCLAIMER.md) o
+[in inglese](DISCLAIMER.en.md).
+
 ## Contribuire e sicurezza
 
 Prima di contribuire leggi [CONTRIBUTING.md](CONTRIBUTING.md). Per le

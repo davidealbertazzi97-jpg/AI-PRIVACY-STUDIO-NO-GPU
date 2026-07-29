@@ -2,11 +2,12 @@
   <img src="static/icon.svg" width="88" height="88" alt="Privacy Studio">
 </p>
 
-<h1 align="center">Privacy Studio Locale</h1>
+<h1 align="center">AI Privacy Studio (No GPU)</h1>
 
 <p align="center">
-  Documenti, OCR, trascrizione, anonimizzazione assistita e cifratura.<br>
-  Tutto sul tuo computer.
+  <strong>Privacy locale per insegnanti e professionisti, senza GPU.</strong><br>
+  I documenti riservati restano sul tuo computer e non vengono inviati a
+  server esterni.
 </p>
 
 <p align="center">
@@ -15,9 +16,19 @@
 
 ## Cosa fa
 
-Privacy Studio Locale è un'applicazione open source per elaborare documenti
-sensibili senza affidare il contenuto a servizi cloud:
+**Privacy Studio Locale è nato nel mio homelab da una necessità personale:**
+gestire documenti riservati con strumenti IA locali su un normale computer,
+senza dipendere dal cloud o da una GPU costosa.
 
+È pensato soprattutto per **insegnanti e professionisti** che lavorano con
+materiale sensibile e vogliono mantenerne il controllo. Funziona su hardware
+consumer di fascia medio-bassa, interamente su CPU: l'obiettivo è offrire un
+prodotto realmente accessibile a tutti.
+
+L'applicazione permette di elaborare documenti sensibili senza affidarne il
+contenuto a servizi cloud:
+
+- interfaccia selezionabile in italiano o inglese, con preferenza memorizzata;
 - anonimizzazione assistita con OpenAI Privacy Filter e regole italiane;
 - trascrizione audio/video con NVIDIA Parakeet TDT 0.6B v3;
 - OCR con PaddleOCR, PP-StructureV3 o GLM-OCR tramite Ollama;

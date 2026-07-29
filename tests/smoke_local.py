@@ -346,7 +346,12 @@ def run_smoke(
         ):
             raise AssertionError("Il login locale via launcher non funziona.")
         page = browser.get(f"{base_url}/")
-        if page.status_code != 200 or "Privacy Studio" not in page.text:
+        if (
+            page.status_code != 200
+            or "Privacy Studio" not in page.text
+            or 'data-language="it"' not in page.text
+            or 'data-language="en"' not in page.text
+        ):
             raise AssertionError("L’interfaccia autenticata non è disponibile.")
         browser.close()
 

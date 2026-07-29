@@ -341,7 +341,7 @@ svg {
   text-transform: uppercase;
 }
 
-.section-label > span {
+.section-label > span:not([data-i18n]) {
   display: inline-grid;
   width: 23px;
   height: 23px;
@@ -365,6 +365,44 @@ svg {
   display: flex;
   align-items: center;
   gap: 9px;
+}
+
+.language-control {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.language-control button {
+  min-width: 31px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 9px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.language-control button:hover {
+  color: var(--ink);
+}
+
+.language-control button.active {
+  color: var(--blue-dark);
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(25, 34, 51, 0.12);
+}
+
+.language-control button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
 }
 
 .engine-summary {

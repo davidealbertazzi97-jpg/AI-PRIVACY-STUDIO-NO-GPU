@@ -20,6 +20,25 @@ fi
 
 python3 -m compileall -q app runtime_guard scripts tests workers
 python3 - <<'PY'
+import re
+from pathlib import Path
+
+html = Path("static/index.html").read_text(encoding="utf-8")
+javascript = Path("static/app.js").read_text(encoding="utf-8")
+assert 'data-language="it"' in html
+assert 'data-language="en"' in html
+translation_keys = set(
+    re.findall(
+        r'data-i18n(?:-html|-aria|-placeholder)?="([^"]+)"',
+        html,
+    )
+)
+missing = sorted(
+    key for key in translation_keys if javascript.count(f'"{key}":') < 2
+)
+assert not missing, f"Traduzioni IT/EN mancanti: {missing}"
+PY
+python3 - <<'PY'
 from scripts.start import guarded_environment
 
 environment = guarded_environment("x" * 48, 54321, 54322)

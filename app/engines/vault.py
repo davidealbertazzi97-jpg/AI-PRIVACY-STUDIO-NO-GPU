@@ -28,7 +28,9 @@ def _run_picocrypt(
         )
     try:
         if os.name == "nt":
-            import wexpect as expect
+            from ..wexpect_compat import import_wexpect
+
+            expect = import_wexpect()
         else:
             import pexpect as expect
     except ImportError as exc:

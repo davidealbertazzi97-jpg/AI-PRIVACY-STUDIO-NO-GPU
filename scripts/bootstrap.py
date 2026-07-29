@@ -136,14 +136,18 @@ def main() -> int:
 
     print(json.dumps(plan, indent=2, ensure_ascii=False))
     core_python = install_requirements(uv, ".venv", "requirements-core.txt")
-    expect_module = "wexpect" if os.name == "nt" else "pexpect"
+    expect_import = (
+        "from app.wexpect_compat import import_wexpect; import_wexpect()"
+        if os.name == "nt"
+        else "import pexpect"
+    )
     run(
         [
             str(core_python),
             "-c",
             (
                 "import fastapi, imageio_ffmpeg, markitdown, pypdfium2, "
-                f"uvicorn, zstandard, {expect_module}; print('Nucleo pronto')"
+                f"uvicorn, zstandard; {expect_import}; print('Nucleo pronto')"
             ),
         ]
     )

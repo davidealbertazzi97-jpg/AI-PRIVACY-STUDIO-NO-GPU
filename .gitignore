@@ -6,6 +6,7 @@
 # Downloaded and compiled runtime artifacts
 /bin/
 /models/
+/.tools/
 *.download
 *.safetensors
 *.onnx

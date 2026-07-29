@@ -319,7 +319,13 @@ def command_ok(command: list[str], timeout: int = 10) -> tuple[bool, str]:
 
 
 def model_cached(pattern: str) -> bool:
-    cache = Path.home() / ".cache" / "huggingface" / "hub"
+    cache = Path(
+        os.environ.get(
+            "HF_HUB_CACHE",
+            Path(os.environ.get("HF_HOME", Path.home() / ".cache" / "huggingface"))
+            / "hub",
+        )
+    )
     return any(cache.glob(pattern))
 
 
@@ -348,12 +354,16 @@ def status() -> dict[str, Any]:
         timeout=25,
     )
     ollama_ok, ollama_detail = command_ok(
-        ["ollama", "show", "glm-ocr:q8_0"], timeout=20
+        [str(PATHS.ollama), "show", "glm-ocr:q8_0"], timeout=20
     )
     picocrypt_ok = PATHS.picocrypt.is_file() and os.access(PATHS.picocrypt, os.X_OK)
-    opf_model = (
-        Path.home() / ".opf" / "privacy_filter" / "model.safetensors"
-    ).is_file()
+    opf_model = Path(
+        os.environ.get(
+            "OPF_CHECKPOINT",
+            Path.home() / ".opf" / "privacy_filter",
+        )
+    )
+    opf_model_ready = (opf_model / "model.safetensors").is_file()
     parakeet_model = model_cached(
         "models--nvidia--parakeet-tdt-0.6b-v3/snapshots/*/model.safetensors"
     )
@@ -369,10 +379,10 @@ def status() -> dict[str, Any]:
             },
             "privacy_filter": {
                 "ready": ai_ok,
-                "model_ready": opf_model,
+                "model_ready": opf_model_ready,
                 "detail": (
                     "OpenAI Privacy Filter locale"
-                    if opf_model
+                    if opf_model_ready
                     else "Modello da scaricare al primo uso"
                 ),
             },

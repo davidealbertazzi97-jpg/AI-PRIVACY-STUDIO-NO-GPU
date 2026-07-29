@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! command -v ollama >/dev/null 2>&1; then
-  printf 'Ollama non è installato.\n' >&2
+app_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+python_bin="$app_dir/.venv/bin/python"
+if [[ ! -x "$python_bin" ]]; then
+  printf 'Installa prima il core con ./install.sh --core-only.\n' >&2
   exit 1
 fi
-
-ollama pull glm-ocr:q8_0
-ollama show glm-ocr:q8_0 >/dev/null
-printf 'GLM-OCR q8_0 pronto in Ollama.\n'
+exec "$python_bin" "$app_dir/scripts/install_ollama.py"

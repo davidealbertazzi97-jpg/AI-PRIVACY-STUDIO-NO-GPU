@@ -4,9 +4,12 @@ Thanks for helping improve Privacy Studio Locale.
 
 ## Development
 
-1. Use Linux with Python 3.10 or newer, `uv`, Node.js, and a C compiler.
-2. Run `./scripts/install-core.sh` for the lightweight backend environment.
-3. Run `./scripts/install-netguard.sh` before integration tests.
+1. Use Python 3.12 and `uv`; Node.js and a C compiler are needed only for all
+   optional checks on Linux.
+2. Run `./install.sh --core-only --skip-desktop` on Linux/macOS or
+   `.\install.ps1 --core-only --skip-desktop` on Windows.
+3. Run `./scripts/install-netguard.sh` before Linux integration tests when a C
+   compiler is available.
 4. Run `./scripts/check.sh` before opening a pull request.
 5. Run `.venv/bin/python tests/smoke_local.py --core-only` for the core smoke
    test. Full engine tests require the locally downloaded models.
@@ -24,4 +27,4 @@ tokens, passphrases, model weights, generated volumes, or application state.
 - Keep third-party code and binaries under their original licenses.
 
 By submitting a contribution, you agree that it may be distributed under the
-repository's 0BSD License.
+repository's Apache License 2.0.

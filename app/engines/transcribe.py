@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -10,24 +11,39 @@ from ..config import PATHS
 from ..utils import Progress, run_checked
 
 
+def _ffmpeg_executable() -> str:
+    try:
+        from imageio_ffmpeg import get_ffmpeg_exe
+    except ImportError as exc:
+        raise RuntimeError(
+            "FFmpeg locale non è installato. Riesegui l’installer."
+        ) from exc
+    return get_ffmpeg_exe()
+
+
 def _duration(path: Path) -> float:
-    result = run_checked(
+    result = subprocess.run(
         [
-            "ffprobe",
+            _ffmpeg_executable(),
+            "-hide_banner",
             "-v",
-            "error",
-            "-show_entries",
-            "format=duration",
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
+            "info",
+            "-i",
             str(path),
         ],
+        capture_output=True,
+        text=True,
         timeout=60,
+        check=False,
     )
-    try:
-        return max(0.0, float(result.stdout.strip()))
-    except ValueError:
+    match = re.search(
+        r"Duration:\s*(\d{2}):(\d{2}):(\d{2}(?:\.\d+)?)",
+        result.stderr,
+    )
+    if match is None:
         return 0.0
+    hours, minutes, seconds = match.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
 
 
 def _split_audio(
@@ -42,7 +58,7 @@ def _split_audio(
     progress(0.03, "Normalizzazione audio con FFmpeg")
     pattern = target / "blocco-%05d.wav"
     command = [
-        "ffmpeg",
+        _ffmpeg_executable(),
         "-hide_banner",
         "-loglevel",
         "error",
@@ -80,7 +96,7 @@ def transcribe_parakeet(
 ) -> tuple[str, dict[str, Any]]:
     if not PATHS.ai_python.is_file():
         raise RuntimeError(
-            "Parakeet v3 non è installato. Esegui scripts/install-ai.sh."
+            "Parakeet v3 non è installato. Riesegui l’installer completo."
         )
     chunks, duration = _split_audio(
         path,

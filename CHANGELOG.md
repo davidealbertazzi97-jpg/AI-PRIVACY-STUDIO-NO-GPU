@@ -11,3 +11,7 @@ All notable changes to Privacy Studio Locale will be documented here.
 - Picocrypt-compatible local vault.
 - Loopback-only API, per-installation token, and outbound network guard.
 - Responsive local interface with vendored Inter and Lucide assets.
+- Verified bootstrap for Linux x86-64, macOS arm64, and Windows x86-64.
+- Managed Python, FFmpeg, Picocrypt, Ollama, and model downloads.
+- Cross-platform launcher and Python outbound-network guard.
+- Apache-2.0 licensing with a detailed third-party inventory.

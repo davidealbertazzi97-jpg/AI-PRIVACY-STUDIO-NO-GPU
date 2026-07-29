@@ -24,14 +24,25 @@ jobs:
         run: |
           ruff check .
           ruff format --check .
-          bandit -q -c pyproject.toml -r app workers
-          python -m compileall -q app tests workers
+          bandit -q -c pyproject.toml -r app runtime_guard scripts workers
+          python -m compileall -q app runtime_guard scripts tests workers
           find scripts -type f -name '*.sh' -print0 |
             xargs -0 -n1 bash -n
+          bash -n install.sh start.sh
           node --check static/app.js
 
   core-smoke:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            venv-python: .venv/bin/python
+          - os: macos-14
+            venv-python: .venv/bin/python
+          - os: windows-latest
+            venv-python: .venv/Scripts/python.exe
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -40,9 +51,29 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           version: "0.11.16"
-      - name: Install core and network guard
+      - name: Validate platform plan and install core
+        shell: bash
         run: |
-          ./scripts/install-core.sh
-          ./scripts/install-netguard.sh
+          python scripts/bootstrap.py --core-only --skip-desktop --dry-run
+          python scripts/bootstrap.py --core-only --skip-desktop
       - name: Run isolated core smoke test
-        run: .venv/bin/python tests/smoke_local.py --core-only
+        shell: bash
+        run: '"${{ matrix.venv-python }}" tests/smoke_local.py --core-only'
+      - name: Parse PowerShell launchers
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            "$PWD/install.ps1",
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) { throw ($errors | Out-String) }
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            "$PWD/start.ps1",
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count) { throw ($errors | Out-String) }

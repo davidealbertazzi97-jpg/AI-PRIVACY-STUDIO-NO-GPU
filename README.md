@@ -13,165 +13,188 @@
   <strong>Italiano</strong> · <a href="README.en.md">English</a>
 </p>
 
-## Cos'è
+## Cosa fa
 
-Privacy Studio Locale è un'applicazione desktop open source per elaborare
-documenti sensibili senza inviarli a servizi cloud. Offre un'interfaccia web
-locale, una coda persistente e motori specializzati eseguiti sul dispositivo.
+Privacy Studio Locale è un'applicazione open source per elaborare documenti
+sensibili senza affidare il contenuto a servizi cloud:
 
 - anonimizzazione assistita con OpenAI Privacy Filter e regole italiane;
-- trascrizione audio e video con NVIDIA Parakeet TDT 0.6B v3;
+- trascrizione audio/video con NVIDIA Parakeet TDT 0.6B v3;
 - OCR con PaddleOCR, PP-StructureV3 o GLM-OCR tramite Ollama;
 - conversione di PDF e documenti Office con Microsoft MarkItDown;
 - cifratura e decifratura di volumi Picocrypt `.pcv`;
-- interfaccia responsive con font e icone open source serviti localmente.
+- coda persistente e interfaccia responsive con asset serviti localmente.
 
-Il progetto è indipendente e non è affiliato, sponsorizzato o approvato dai
-produttori dei motori integrati.
+Il progetto è indipendente e non è affiliato ai produttori dei motori
+integrati.
 
-## Privacy e sicurezza
+## Installazione automatica
 
-Il server ascolta esclusivamente su `127.0.0.1` e richiede un token casuale
-generato durante l'installazione. Gli originali non vengono sovrascritti; le
-copie temporanee vengono eliminate al termine di ogni lavoro.
+Il profilo completo è predisposto per:
 
-Il servizio e il browser dedicato caricano un piccolo guard nativo che nega le
-connessioni IPv4 e IPv6 non loopback. Chromium viene inoltre avviato con un
-profilo separato, proxy chiuso e risoluzione dei nomi esterni disabilitata.
+| Sistema | Architettura |
+| --- | --- |
+| Linux | x86-64 |
+| macOS | Apple Silicon (arm64) |
+| Windows 10/11 | x86-64 |
 
-La rete è necessaria durante l'installazione per scaricare pacchetti e modelli.
-Dopo l'installazione i motori lavorano con file locali e cache locali. Il guard
-è una misura di difesa in profondità, non sostituisce un firewall o una sandbox
-del sistema operativo.
-
-> [!WARNING]
-> OpenAI Privacy Filter riduce il rischio di divulgare dati personali, ma non
-> garantisce anonimizzazione completa o conformità legale. Revisiona sempre i
-> risultati prima di condividerli.
-
-## Requisiti
-
-La procedura automatica è attualmente supportata e testata su:
-
-- Linux x86_64 con sessione systemd utente;
-- Python 3.10 o successivo, consigliato Python 3.12;
-- [`uv`](https://docs.astral.sh/uv/), compilatore C, `curl` e `sha256sum`;
-- FFmpeg e ffprobe;
-- [Ollama](https://ollama.com/) per GLM-OCR;
-- Chromium, Chromium Browser o Google Chrome.
-
-I modelli richiedono diversi gigabyte di spazio. L'esecuzione è configurata per
-CPU; GLM-OCR è accurato ma può essere molto lento senza accelerazione hardware.
-
-## Installazione
-
-Clona o scarica il repository, quindi:
+Su Linux o macOS:
 
 ```bash
 cd PrivacyStudio
-./scripts/install.sh
+chmod +x install.sh start.sh
+./install.sh
 ```
 
-Lo script:
+Su Windows, da PowerShell:
 
-1. controlla i prerequisiti senza installare pacchetti di sistema;
-2. crea tre ambienti Python isolati;
-3. scarica e verifica Picocrypt CLI e la relativa licenza GPL;
-4. compila il guard di rete dal sorgente C;
-5. scarica e prepara tutti i modelli;
-6. installa launcher e servizio systemd per il solo utente corrente.
+```powershell
+cd PrivacyStudio
+.\install.ps1
+```
 
-Ogni script in `scripts/install-*.sh` è rilanciabile singolarmente. I download
-di Picocrypt sono bloccati da checksum SHA-256; OpenAI Privacy Filter è fissato
-a uno specifico commit Git.
+Da Prompt dei comandi si può usare `install.cmd`; il wrapper applica
+l'eccezione alla policy PowerShell soltanto al proprio processo, senza
+modificare le impostazioni del sistema.
+
+Non occorre installare manualmente Python, `uv`, FFmpeg, Picocrypt, Ollama o i
+modelli. L'installer scarica `uv` e ne verifica il checksum, installa Python
+3.12 in modo gestito, crea tre ambienti isolati e prepara tutti i motori. I
+download diretti di Picocrypt e Ollama sono versionati e verificati con
+SHA-256. Parakeet e Privacy Filter sono fissati a commit precisi; il manifest
+GLM-OCR viene verificato tramite digest, mentre PaddleOCR deriva dalla release
+Python bloccata e viene validato con un'inferenza sintetica.
+
+L'installazione completa richiede la rete, tempo e diversi gigabyte di spazio.
+Per evitare il runtime Ollama e GLM-OCR, che da soli aggiungono circa 3 GB:
+
+```bash
+./install.sh --without-glm
+```
+
+In PowerShell si usa lo stesso flag con `.\install.ps1`. Per installare soltanto
+il nucleo leggero: `--core-only --skip-desktop`.
+
+Il profilo completo e gli smoke test dei motori sono stati verificati su Linux
+x86-64. Il nucleo viene verificato dalla CI anche su macOS e Windows; le
+combinazioni indicate seguono le wheel ufficiali di PyTorch, PaddlePaddle e
+degli altri componenti. NVIDIA indica Linux come sistema preferito per
+Parakeet, quindi la trascrizione sui due sistemi non-Linux va considerata
+supporto best effort finché non sarà coperta da test hardware completi.
 
 ## Avvio
 
-Apri **Privacy Studio Locale** dal menu applicazioni. In alternativa:
+Su Linux/macOS:
 
 ```bash
-./scripts/open.sh
+./start.sh
 ```
 
-Il servizio non viene esposto sulla rete locale e non è abilitato
-automaticamente all'avvio del computer. Il launcher lo avvia quando serve.
+Su Windows:
+
+```powershell
+.\start.ps1
+```
+
+Da Prompt dei comandi è disponibile anche `start.cmd`.
+
+Il launcher genera una chiave privata, avvia gli eventuali servizi locali,
+attende il controllo di salute e apre il browser. `Ctrl+C` arresta i processi
+avviati dalla sessione. Su Linux l'installer può inoltre creare la voce
+**Privacy Studio Locale** nel menu applicazioni.
+
+## Privacy e limiti di sicurezza
+
+Il server ascolta soltanto su `127.0.0.1` e ogni API richiede un token casuale.
+I processi Python ricevono un guard multipiattaforma che rifiuta connessioni
+non loopback; su Linux viene aggiunto, quando compilabile, un secondo guard
+nativo. Ollama comunica esclusivamente tramite API loopback. Non ci sono
+telemetria, CDN o inferenza remota.
+
+La rete è consentita durante l'installazione per ottenere software e modelli.
+Al runtime i motori usano file e cache locali. Il browser predefinito rimane un
+programma esterno e può effettuare il proprio traffico di background; il server
+non gli espone contenuti su interfacce di rete esterne.
+
+Gli originali non vengono sovrascritti. Le copie di lavoro vengono eliminate
+al termine del job e le passphrase Picocrypt rimangono soltanto in RAM durante
+l'operazione.
+
+> [!WARNING]
+> L'anonimizzazione automatica riduce il rischio, ma non garantisce che ogni
+> dato personale venga riconosciuto né costituisce una verifica di conformità
+> legale. Controlla sempre il risultato prima di condividerlo.
 
 ## Dati locali
 
-| Contenuto | Percorso predefinito |
-| --- | --- |
-| Coda, database e temporanei | `~/.local/share/privacy-studio` |
-| Cassaforte Picocrypt | `~/.local/share/privacy-studio/vault` |
-| Risultati | `~/Documenti/Privacy Studio - Risultati` |
-| Token e porta | `~/.config/privacy-studio/environment` |
-| Profilo Chromium isolato | `~/.local/state/privacy-studio/chrome-profile` |
+| Sistema | Dati e cassaforte | Token e log | Risultati |
+| --- | --- | --- | --- |
+| Linux | `~/.local/share/privacy-studio` | `~/.config/privacy-studio` | `~/Documents/Privacy Studio - Results` |
+| macOS | `~/Library/Application Support/Privacy Studio` | stessa cartella | `~/Documents/Privacy Studio - Results` |
+| Windows | `%LOCALAPPDATA%\Privacy Studio` | stessa cartella | `%USERPROFILE%\Documents\Privacy Studio - Results` |
 
-Le directory contenenti dati hanno permessi `0700`; token, database e volumi
-sono protetti con permessi privati. Le passphrase Picocrypt restano soltanto in
-memoria durante il lavoro e non vengono salvate.
+Su un sistema Linux italiano che possiede `~/Documenti` ma non `~/Documents`,
+il launcher usa automaticamente la cartella localizzata. Gli artefatti
+scaricati (`.venv*`, `bin`, `models`) sono esclusi da Git.
+
+## Installazione tramite agente IA
+
+Chi usa un agente di coding può copiare il prompt già pronto:
+
+- [prompt in italiano](docs/CODING_AGENT_PROMPT.it.md);
+- [English prompt](docs/CODING_AGENT_PROMPT.en.md).
+
+Il prompt ordina all'agente di rilevare sistema e architettura, usare
+l'installer ufficiale, non richiedere privilegi amministrativi, eseguire i
+test locali e non caricare documenti o segreti.
 
 ## Sviluppo e test
 
-Controlli statici:
-
 ```bash
 ./scripts/check.sh
-```
-
-Smoke test leggero e isolato:
-
-```bash
 .venv/bin/python tests/smoke_local.py --core-only
-```
-
-Test locale di conversione, Privacy Filter e Picocrypt:
-
-```bash
 .venv/bin/python tests/smoke_local.py --skip-heavy
-```
-
-Test completo escluso il lento GLM-OCR:
-
-```bash
 .venv/bin/python tests/smoke_local.py --skip-glm
 ```
 
-Tutti i test creano esclusivamente documenti sintetici in directory temporanee.
-Le pull request eseguono Ruff, compilazione Python, validazione shell e
-JavaScript, Bandit e lo smoke test del nucleo.
+I test usano soltanto documenti sintetici in directory temporanee. Il primo
+comando esegue controlli statici; gli altri provano rispettivamente nucleo,
+motori leggeri e profilo completo escluso GLM-OCR.
 
 ## Struttura
 
 ```text
-app/         API, coda persistente e orchestrazione
-workers/     processi isolati per AI e PaddleOCR
-static/      interfaccia locale e asset vendorizzati
-native/      sorgente del guard di rete
-scripts/     installazione, avvio e controlli
-packaging/   template desktop e systemd portabili
-tests/       smoke test con fixture sintetiche
+app/             API, coda e orchestrazione
+workers/         processi isolati per AI e PaddleOCR
+static/          interfaccia e asset locali
+runtime_guard/   blocco di rete Python multipiattaforma
+native/          guard di rete aggiuntivo per Linux
+scripts/         bootstrap, avvio e controlli
+packaging/       integrazione desktop Linux
+tests/           smoke test con fixture sintetiche
 ```
 
-## Licenze
+## Licenza
 
-Il codice originale di Privacy Studio Locale è distribuito sotto
-[licenza BSD Zero Clause (0BSD)](LICENSE), una licenza open source
-estremamente permissiva che non impone condizioni sul riuso del codice
-originale.
+Il codice originale è distribuito sotto
+[Apache License 2.0](LICENSE). È una licenza open source permissiva che
+consente uso, modifica e ridistribuzione, include una concessione esplicita di
+brevetti e contiene esclusioni di garanzia e limitazioni di responsabilità.
+Richiede di conservare licenza e avvisi e di segnalare i file modificati.
 
-Le dipendenze conservano le proprie licenze. In particolare, Picocrypt CLI è un
-programma separato GPL-3.0-only richiamato dalla riga di comando; il suo binario
-non è incluso nel repository. Inter è OFL-1.1, Lucide è ISC e il modello
-NVIDIA Parakeet è CC-BY-4.0. Consulta
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) per l'inventario completo e
-le attribuzioni.
+È stata preferita alla 0BSD per la tutela brevettuale esplicita, pur restando
+molto permissiva. Le dipendenze mantengono le loro licenze: Picocrypt CLI è un
+programma separato GPL-3.0-only scaricato dall'utente tramite installer; anche
+il binario FFmpeg fornito dalla wheel ispezionata è un processo separato GPL;
+Parakeet è CC-BY-4.0; Inter è OFL-1.1 e Lucide è ISC. Consulta
+[gli avvisi di terze parti](THIRD_PARTY_NOTICES.md).
 
-Questa valutazione di compatibilità è tecnica e prudenziale, non un parere
-legale. Per una distribuzione commerciale in forma binaria è opportuno far
-verificare il pacchetto finale da un professionista.
+Questa è una valutazione tecnica prudenziale, non un parere legale. Il
+repository sorgente non include ambienti Python, modelli o binari scaricati.
+Chi distribuisce un pacchetto binario già assemblato deve rigenerare
+l'inventario e rispettare anche gli obblighi dei singoli artefatti inclusi.
 
 ## Contribuire e sicurezza
 
-Leggi [`CONTRIBUTING.md`](CONTRIBUTING.md) prima di inviare modifiche. Le
-vulnerabilità non devono essere pubblicate in una issue: segui
-[`SECURITY.md`](SECURITY.md).
+Prima di contribuire leggi [CONTRIBUTING.md](CONTRIBUTING.md). Per le
+vulnerabilità segui [SECURITY.md](SECURITY.md) senza aprire issue pubbliche.

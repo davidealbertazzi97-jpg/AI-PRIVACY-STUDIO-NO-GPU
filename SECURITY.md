@@ -13,9 +13,10 @@ or decrypted data.
 
 ## Scope
 
-The application is designed for a single user on a local Linux workstation. It
-binds to loopback and requires a per-installation token, but it is not designed
-to be exposed to a LAN or the public internet.
+The application is designed for a single user on a supported local Linux,
+macOS, or Windows workstation. It binds to loopback and requires a
+per-installation token, but it is not designed to be exposed to a LAN or the
+public internet.
 
 OpenAI Privacy Filter assists with data minimization. It does not guarantee
 anonymization, regulatory compliance, or removal of every sensitive datum.

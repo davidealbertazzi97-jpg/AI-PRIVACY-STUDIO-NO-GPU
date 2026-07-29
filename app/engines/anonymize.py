@@ -19,7 +19,7 @@ def anonymize_text(
 ) -> tuple[str, dict[str, Any], list[dict[str, Any]]]:
     if not PATHS.ai_python.is_file():
         raise RuntimeError(
-            "OpenAI Privacy Filter non è installato. Esegui scripts/install-ai.sh."
+            "OpenAI Privacy Filter non è installato. Riesegui l’installer completo."
         )
     source = work_dir / "testo-estratto.md"
     output = work_dir / "privacy-result.json"

@@ -1,9 +1,9 @@
 # Third-party notices
 
-Privacy Studio Locale is licensed under the 0BSD License. That license applies
-only to the original code and documentation in this repository. Dependencies,
-models, fonts, icons, and external programs remain under their respective
-licenses.
+Privacy Studio Locale is licensed under the Apache License 2.0. That license
+applies only to the original code and documentation in this repository.
+Dependencies, models, fonts, icons, and external programs remain under their
+respective licenses.
 
 This inventory is provided for transparency and release preparation. It is not
 legal advice. Before distributing a bundled binary release, regenerate the
@@ -35,6 +35,10 @@ The lock-style requirements files contain the versions used by this release.
 | pypdfium2 | 5.12.1 | BSD-3-Clause / Apache-2.0; its wheel carries PDFium and dependency notices |
 | Pillow | 12.3.0 | HPND |
 | Pexpect | 4.9.0 | ISC |
+| Wexpect | 4.0.0 | MIT |
+| Setuptools | 83.0.0 | MIT |
+| imageio-ffmpeg | 0.6.0 | BSD-2-Clause; platform wheels include a separate FFmpeg executable |
+| python-zstandard | 0.25.0 | BSD-3-Clause |
 | PyTorch | 2.13.0 CPU | BSD-3-Clause |
 | Hugging Face Transformers | 5.14.1 | Apache-2.0 |
 | Hugging Face Accelerate | 1.14.0 | Apache-2.0 |
@@ -64,23 +68,24 @@ download them into user caches.
 
 | Model | License | Attribution/source |
 | --- | --- | --- |
-| OpenAI Privacy Filter | Apache-2.0 | [OpenAI Privacy Filter](https://github.com/openai/privacy-filter) |
+| OpenAI Privacy Filter | Apache-2.0 | Package commit `f7f00ca7fb869683eb732c010299d901457f19c3`; model revision `7ffa9a043d54d1be65afb281eddf0ffbe629385b`; [OpenAI Privacy Filter](https://github.com/openai/privacy-filter) |
 | NVIDIA Parakeet TDT 0.6B v3 | CC-BY-4.0 | Revision `7c35754d166cca382ad1e53e68b01e7c575f3a1d`; [NVIDIA model card](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) |
-| GLM-OCR | MIT | [Z.ai model card](https://huggingface.co/zai-org/GLM-OCR) |
+| GLM-OCR | MIT | Ollama tag `glm-ocr:q8_0`, manifest digest `2a5a0f1a93017fc9db321ec196efb4b9bbba97c4d890df8e39429ed771f2ed25`; [Z.ai model card](https://huggingface.co/zai-org/GLM-OCR) |
 | PaddleOCR models | Apache-2.0 | [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) |
 
 ## Separate external programs
 
-These programs are not part of the 0BSD-licensed source code. They communicate
-with Privacy Studio through command-line arguments or a loopback API and retain
-their own licenses.
+These programs are not part of the Apache-2.0-licensed source code. They
+communicate with Privacy Studio through command-line arguments, pipes, or a
+loopback API and retain their own licenses.
 
 | Program | Use | License/distribution |
 | --- | --- | --- |
 | Picocrypt CLI 1.49 | `.pcv` encryption and decryption | GPL-3.0-only. The binary is excluded from Git, downloaded unmodified from the official release, verified by SHA-256, and invoked as a separate process. The installer also downloads and verifies its complete GPL license. |
-| Ollama | Local GLM-OCR runtime | MIT; installed separately by the user |
-| FFmpeg / ffprobe | Local audio normalization | System package; license depends on the distribution build, commonly LGPL/GPL |
-| Chromium or Google Chrome | Dedicated local application window | System browser; not redistributed by this repository |
+| Ollama 0.32.5 | Local GLM-OCR runtime | MIT. Excluded from Git; the installer downloads an official unmodified archive and verifies its SHA-256 digest. |
+| FFmpeg 7.0.2 | Local audio normalization | The `imageio-ffmpeg` wheel supplies and Privacy Studio invokes it as a separate process. The inspected Linux x86-64 wheel reports `--enable-gpl --enable-version3`, making that executable GPL-3.0-or-later; other wheel builds must be checked individually. It is excluded from Git. |
+| uv 0.11.16 | Verified Python and environment bootstrap | Apache-2.0 OR MIT. Excluded from Git; the root installer downloads the official release and verifies its SHA-256 digest. |
+| Default web browser | Local user interface | Already installed by the user; not redistributed by this repository |
 
 The Free Software Foundation notes that command-line arguments are normally a
 communication mechanism between separate programs. Whether programs form one

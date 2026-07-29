@@ -20,6 +20,7 @@ import httpx
 from PIL import Image, ImageDraw, ImageFont
 
 APP_DIR = Path(__file__).resolve().parent.parent
+OPF_REVISION = "7ffa9a043d54d1be65afb281eddf0ffbe629385b"
 
 
 def write_text_pdf(path: Path, lines: list[tuple[str, int]]) -> None:
@@ -101,8 +102,12 @@ def create_fixtures(root: Path) -> dict[str, Path]:
     draw = ImageDraw.Draw(image)
     regular_path = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
     bold_path = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
-    regular = ImageFont.truetype(str(regular_path), 52)
-    bold = ImageFont.truetype(str(bold_path), 72)
+    if regular_path.is_file() and bold_path.is_file():
+        regular = ImageFont.truetype(str(regular_path), 52)
+        bold = ImageFont.truetype(str(bold_path), 72)
+    else:
+        regular = ImageFont.load_default(size=52)
+        bold = ImageFont.load_default(size=72)
     draw.text((90, 90), "PRIVACY STUDIO", font=bold, fill="#111111")
     draw.text(
         (90, 250),
@@ -190,13 +195,33 @@ def test_server(root: Path):
             "PRIVACY_STUDIO_DATA": str(root / "data"),
             "PRIVACY_STUDIO_OUTPUTS": str(root / "outputs"),
             "PYTHONUNBUFFERED": "1",
-            "LD_PRELOAD": str(APP_DIR / "bin" / "libprivacy_studio_netguard.so"),
         }
     )
+    managed_hf = APP_DIR / "models" / "huggingface"
+    managed_opf = (
+        managed_hf
+        / "hub"
+        / "models--openai--privacy-filter"
+        / "snapshots"
+        / OPF_REVISION
+        / "original"
+    )
+    if managed_hf.is_dir():
+        environment["HF_HOME"] = str(managed_hf)
+    if (managed_opf / "model.safetensors").is_file():
+        environment["OPF_CHECKPOINT"] = str(managed_opf)
+    guard = str(APP_DIR / "runtime_guard")
+    current_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = (
+        guard + os.pathsep + current_pythonpath if current_pythonpath else guard
+    )
+    native_guard = APP_DIR / "bin" / "libprivacy_studio_netguard.so"
+    if sys.platform.startswith("linux") and native_guard.is_file():
+        environment["LD_PRELOAD"] = str(native_guard)
     with log_path.open("w", encoding="utf-8") as log:
         process = subprocess.Popen(
             [
-                str(APP_DIR / ".venv" / "bin" / "python"),
+                sys.executable,
                 "-m",
                 "uvicorn",
                 "app.main:app",

@@ -12,6 +12,12 @@ dashboard_dir="$HOME/Scrivania/PANNELLI DI CONTROLLO"
 environment_file="$config_dir/environment"
 gui_launcher="$user_bin_dir/privacy-studio"
 service_launcher="$user_bin_dir/privacy-studio-service"
+python_bin="$app_dir/.venv/bin/python"
+
+if [[ ! -x "$python_bin" ]]; then
+  printf 'Ambiente core assente: esegui prima ./install.sh.\n' >&2
+  exit 1
+fi
 
 umask 077
 mkdir -p -- \
@@ -23,7 +29,7 @@ mkdir -p -- \
   "$user_bin_dir"
 
 if [[ ! -s "$environment_file" ]]; then
-  token="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
+  token="$("$python_bin" -c 'import secrets; print(secrets.token_urlsafe(48))')"
   printf 'PRIVACY_STUDIO_TOKEN=%s\nPRIVACY_STUDIO_PORT=8765\n' "$token" > "$environment_file"
 fi
 chmod 0600 "$environment_file"
@@ -48,16 +54,14 @@ trap cleanup EXIT
   printf 'set -euo pipefail\n'
   printf 'app_dir=%q\n' "$app_dir"
   printf 'cd -- "$app_dir"\n'
-  printf 'export LD_PRELOAD="$app_dir/bin/libprivacy_studio_netguard.so"\n'
-  printf 'exec "$app_dir/.venv/bin/python" -m uvicorn app.main:app '
-  printf '%s\n' \
-    '--host 127.0.0.1 --port "${PRIVACY_STUDIO_PORT:-8765}" --no-access-log'
+  printf 'exec "$app_dir/.venv/bin/python" "$app_dir/scripts/start.py" '
+  printf '%s\n' '--no-browser'
 } > "$service_temp"
 
 install -m 0755 "$gui_temp" "$gui_launcher"
 install -m 0755 "$service_temp" "$service_launcher"
 
-python3 - \
+"$python_bin" - \
   "$app_dir/packaging/privacy-studio.desktop.in" \
   "$desktop_temp" \
   "@GUI_LAUNCHER@" \
@@ -70,7 +74,7 @@ text = Path(template).read_text(encoding="utf-8")
 Path(output).write_text(text.replace(marker, value), encoding="utf-8")
 PY
 
-python3 - \
+"$python_bin" - \
   "$app_dir/packaging/privacy-studio.service.in" \
   "$unit_temp" \
   "@SERVICE_LAUNCHER@" \
@@ -95,7 +99,8 @@ if [[ -d "$dashboard_dir" ]]; then
     metadata::trusted true 2>/dev/null || true
 fi
 
-systemctl --user daemon-reload
+systemctl --user daemon-reload 2>/dev/null || \
+  printf 'Nota: sessione systemd utente non disponibile; launcher installato.\n'
 update-desktop-database "$applications_dir" 2>/dev/null || true
 gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
 printf 'Launcher Privacy Studio installato.\n'

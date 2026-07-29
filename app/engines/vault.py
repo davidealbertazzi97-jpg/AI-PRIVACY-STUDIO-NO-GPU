@@ -20,16 +20,21 @@ def _run_picocrypt(
 ) -> tuple[Path, str]:
     if not PATHS.picocrypt.is_file():
         raise RuntimeError(
-            "Picocrypt CLI non è installato. Esegui scripts/install-picocrypt.sh."
+            "Picocrypt CLI non è installato. Riesegui l’installer completo."
         )
     if len(password) < 10:
         raise RuntimeError(
             "Usa una password di almeno 10 caratteri; meglio una passphrase lunga."
         )
     try:
-        import pexpect
+        if os.name == "nt":
+            import wexpect as expect
+        else:
+            import pexpect as expect
     except ImportError as exc:
-        raise RuntimeError("Manca il componente locale pexpect.") from exc
+        raise RuntimeError(
+            "Manca il componente locale per controllare Picocrypt."
+        ) from exc
 
     arguments: list[str] = []
     if not decrypt and paranoid:
@@ -37,12 +42,21 @@ def _run_picocrypt(
     if not decrypt and recovery:
         arguments.append("-r")
     arguments.append(input_path.name)
-    child = pexpect.spawn(
+    spawn_options: dict[str, Any] = {
+        "cwd": str(input_path.parent),
+        "timeout": None,
+        "echo": False,
+    }
+    if os.name == "nt":
+        # Wexpect uses the Windows console code page instead of Pexpect's
+        # encoding argument.
+        spawn_options["codepage"] = 65001
+    else:
+        spawn_options["encoding"] = "utf-8"
+    child = expect.spawn(
         str(PATHS.picocrypt),
         arguments,
-        cwd=str(input_path.parent),
-        encoding="utf-8",
-        timeout=None,
+        **spawn_options,
     )
     log: list[str] = []
     try:
@@ -53,7 +67,7 @@ def _run_picocrypt(
             child.expect_exact("Confirm: ")
             log.append(child.before or "")
             child.sendline(password)
-        child.expect(pexpect.EOF)
+        child.expect(expect.EOF)
         log.append(child.before or "")
     finally:
         child.close()

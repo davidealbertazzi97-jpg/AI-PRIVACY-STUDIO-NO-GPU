@@ -12,6 +12,8 @@ import httpx
 from ..config import PATHS
 from ..utils import Progress, file_kind
 
+GLM_MODEL_DIGEST = "2a5a0f1a93017fc9db321ec196efb4b9bbba97c4d890df8e39429ed771f2ed25"
+
 
 def _prepare_glm_image(path: Path, target: Path) -> Path:
     try:
@@ -87,7 +89,10 @@ def ocr_glm(
 
     try:
         tags = httpx.get("http://127.0.0.1:11434/api/tags", timeout=3.0).json()
-        installed = {entry.get("name") for entry in tags.get("models", [])}
+        installed = {
+            entry.get("name") or entry.get("model"): entry.get("digest")
+            for entry in tags.get("models", [])
+        }
     except Exception as exc:
         raise RuntimeError(
             "Ollama non risponde su 127.0.0.1:11434. Avvialo e riprova."
@@ -95,7 +100,12 @@ def ocr_glm(
     if model not in installed:
         raise RuntimeError(
             f"Il modello locale {model} non è installato. "
-            "Esegui: ollama pull glm-ocr:q8_0"
+            "Riesegui l’installer senza l’opzione --without-glm."
+        )
+    if model == "glm-ocr:q8_0" and installed[model] != GLM_MODEL_DIGEST:
+        raise RuntimeError(
+            "Il digest del modello GLM-OCR non corrisponde alla release "
+            "verificata. Riesegui l’installer."
         )
 
     total = max(1, len(pages))
@@ -148,9 +158,7 @@ def ocr_paddle(
     structured: bool = False,
 ) -> tuple[str, dict[str, Any]]:
     if not PATHS.paddle_python.is_file():
-        raise RuntimeError(
-            "PaddleOCR non è installato. Esegui scripts/install-paddle.sh."
-        )
+        raise RuntimeError("PaddleOCR non è installato. Riesegui l’installer completo.")
     result_path = work_dir / "paddle-result.json"
     progress_path = work_dir / "paddle-progress.json"
     command = [

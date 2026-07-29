@@ -1,3 +1,3 @@
-"""Privacy Studio Locale."""
+"""AI Privacy Studio."""
 
 __version__ = "1.0.0"

@@ -110,6 +110,6 @@ Picocrypt, Ollama, and FFmpeg are not embedded in the `.exe`, `.AppImage`, or
 
 ## Deliberate licensing boundary
 
-PyMuPDF is not a dependency of Privacy Studio Locale. PDF rendering uses
+PyMuPDF is not a dependency of AI Privacy Studio. PDF rendering uses
 pypdfium2 to avoid introducing PyMuPDF's AGPL/commercial licensing terms into
 the application.

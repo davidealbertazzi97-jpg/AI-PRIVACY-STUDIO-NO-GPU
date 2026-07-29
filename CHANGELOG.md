@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Privacy Studio Locale will be documented here.
+All notable changes to AI Privacy Studio will be documented here.
 
 ## 1.0.0 - 2026-07-29
 

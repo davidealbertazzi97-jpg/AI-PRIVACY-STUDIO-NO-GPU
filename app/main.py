@@ -70,7 +70,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="Privacy Studio Locale",
+    title="AI Privacy Studio",
     version=__version__,
     docs_url=None,
     redoc_url=None,

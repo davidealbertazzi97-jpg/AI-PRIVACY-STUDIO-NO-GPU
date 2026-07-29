@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Privacy Studio Locale
+Name=AI Privacy Studio (No GPU)
 Comment=Trascrizione, OCR, anonimizzazione e cassaforte in locale
 Exec="@GUI_LAUNCHER@"
 Icon=privacy-studio

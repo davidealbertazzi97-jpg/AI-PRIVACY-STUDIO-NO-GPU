@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Privacy Studio Locale.
+Thanks for helping improve AI Privacy Studio.
 
 ## Development
 

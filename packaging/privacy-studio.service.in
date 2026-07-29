@@ -1,5 +1,5 @@
 [Unit]
-Description=Privacy Studio Locale
+Description=AI Privacy Studio (No GPU)
 After=graphical-session.target
 
 [Service]

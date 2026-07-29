@@ -94,8 +94,8 @@ install -m 0644 "$app_dir/static/icon.svg" \
 
 if [[ -d "$dashboard_dir" ]]; then
   install -m 0755 "$desktop_temp" \
-    "$dashboard_dir/Privacy Studio Locale.desktop"
-  gio set "$dashboard_dir/Privacy Studio Locale.desktop" \
+    "$dashboard_dir/AI Privacy Studio.desktop"
+  gio set "$dashboard_dir/AI Privacy Studio.desktop" \
     metadata::trusted true 2>/dev/null || true
 fi
 

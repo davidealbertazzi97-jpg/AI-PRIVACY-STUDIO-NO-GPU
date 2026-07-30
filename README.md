@@ -86,7 +86,7 @@ The full installer prepares:
 
 - managed Python 3.12 and isolated environments;
 - Microsoft MarkItDown;
-- OpenAI Privacy Filter;
+- OpenAI Privacy Filter and Rizzo PII 0.3B (Simone Rizzo);
 - NVIDIA Parakeet TDT 0.6B v3;
 - PaddleOCR and PP-StructureV3;
 - Ollama and GLM-OCR Q8;
@@ -98,7 +98,7 @@ Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 ### Functions
 
 - Italian or English interface with a saved local preference.
-- PII redaction using OpenAI Privacy Filter and deterministic Italian patterns.
+- PII redaction with a choice between OpenAI Privacy Filter (multilingual) or Rizzo PII 0.3B by Simone Rizzo (specialized Italian PII: Tax Code, VAT ID, Land Registry, Document ID, etc.), plus deterministic Italian patterns.
 - Audio and video transcription with NVIDIA Parakeet.
 - OCR for images and multi-page PDF files with PaddleOCR, PP-StructureV3, or
   GLM-OCR.
@@ -247,7 +247,7 @@ L'installazione completa prepara:
 
 - Python 3.12 gestito e ambienti isolati;
 - Microsoft MarkItDown;
-- OpenAI Privacy Filter;
+- OpenAI Privacy Filter e Rizzo PII 0.3B (Simone Rizzo);
 - NVIDIA Parakeet TDT 0.6B v3;
 - PaddleOCR e PP-StructureV3;
 - Ollama e GLM-OCR Q8;
@@ -260,8 +260,7 @@ conversione.
 ### Funzioni
 
 - Interfaccia in italiano o inglese con preferenza salvata in locale.
-- Anonimizzazione PII con OpenAI Privacy Filter e regole italiane
-  deterministiche.
+- Anonimizzazione PII a scelta tra OpenAI Privacy Filter (Tutte le lingue) e Rizzo PII 0.3B di Simone Rizzo (Solo italiano: Codice Fiscale, P.IVA, Dati Catastali, Documento ID, ecc.), oltre a regole italiane deterministiche.
 - Trascrizione audio e video con NVIDIA Parakeet.
 - OCR di immagini e PDF multipagina con PaddleOCR, PP-StructureV3 o GLM-OCR.
 - Conversione di Office, PDF, HTML, EPUB e dati strutturati con MarkItDown.

@@ -51,6 +51,7 @@ again when distributing a preassembled environment.
 | PaddlePaddle | 3.3.1 | Apache-2.0 |
 | PaddleOCR / PaddleX | 3.7.x | Apache-2.0 |
 | OpenAI Privacy Filter package | commit `f7f00ca7fb869683eb732c010299d901457f19c3` | Apache-2.0 |
+| Rizzo PII 0.3B (Simone Rizzo / Rizzo AI Academy) | 0.3B (ModernBERT) | MIT (Base model mmBERT: Apache-2.0) |
 
 Transitive dependencies keep their upstream licenses. Their license metadata
 is installed inside each virtual environment by the package manager.

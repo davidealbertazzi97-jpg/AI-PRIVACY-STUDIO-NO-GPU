@@ -238,7 +238,7 @@ class JobRunner:
             return md_path, bundle, result
 
         if operation == "anonymize":
-            if job["engine"] == "privacy_filter":
+            if job["engine"] in ("privacy_filter", "privacy_filter_rizzo"):
                 text, extraction = self._extract_for_privacy(
                     source,
                     work_dir,
@@ -259,6 +259,7 @@ class JobRunner:
                 text,
                 work_dir,
                 progress,
+                engine=job["engine"],
                 include_dates=bool(options.get("include_dates", True)),
             )
             progress(0.94, "Scrittura copie anonimizzate")

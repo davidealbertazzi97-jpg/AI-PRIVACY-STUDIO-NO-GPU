@@ -448,6 +448,24 @@ def run_smoke(
             raise AssertionError("L’anonimizzazione sintetica è incompleta.")
         results["privacy_filter"] = anonymized
 
+        anonymized_rizzo = submit_job(
+            client,
+            base_url,
+            fixtures["private"],
+            "anonymize",
+            "privacy_filter_rizzo",
+            timeout_seconds=900,
+            extra={"include_dates": "true"},
+        )
+        rizzo_text = Path(anonymized_rizzo["output_path"]).read_text(encoding="utf-8")
+        if (
+            "mario.rossi@example.test" in rizzo_text
+            or "333 1234567" in rizzo_text
+            or "[EMAIL_" not in rizzo_text
+        ):
+            raise AssertionError("L’anonimizzazione Rizzo PII 0.3B è incompleta.")
+        results["privacy_filter_rizzo"] = anonymized_rizzo
+
         if not skip_heavy:
             paddle = submit_job(
                 client,

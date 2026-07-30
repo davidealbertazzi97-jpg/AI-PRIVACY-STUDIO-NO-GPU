@@ -112,7 +112,10 @@ const locales = {
       engines: "Motori locali",
     },
     engineOptions: {
-      anonymize: [["privacy_filter", "OpenAI Privacy Filter · locale"]],
+      anonymize: [
+        ["privacy_filter", "OpenAI Privacy Filter (Tutte le lingue) · locale"],
+        ["privacy_filter_rizzo", "Rizzo PII 0.3B di Simone Rizzo (Solo italiano) · locale"],
+      ],
       transcribe: [["parakeet", "NVIDIA Parakeet v3 · locale"]],
       ocr: [
         ["paddle", "PaddleOCR · rapido su CPU"],
@@ -141,7 +144,8 @@ const locales = {
     },
     engineDescriptions: {
       markitdown: ["Microsoft MarkItDown", "Converte Office, PDF, HTML, EPUB e dati strutturati in Markdown."],
-      privacy_filter: ["OpenAI Privacy Filter", "Rileva PII in locale con 8 categorie e contesto lungo."],
+      privacy_filter: ["OpenAI Privacy Filter", "Rileva PII in locale con 8 categorie e contesto lungo (Tutte le lingue)."],
+      privacy_filter_rizzo: ["Rizzo PII 0.3B", "Modello ModernBERT di Simone Rizzo per PII in italiano: 22 categorie, CF, P.IVA, CATASTO, DOCID (Solo italiano)."],
       parakeet: ["NVIDIA Parakeet v3", "Trascrizione multilingue con punteggiatura, anche per audio lunghi."],
       paddle: ["PaddleOCR / PP-StructureV3", "OCR CPU e ricostruzione di layout, tabelle e ordine di lettura."],
       glm: ["GLM-OCR Q8", "OCR multimodale locale via Ollama; modalità lenta per documenti complessi."],
@@ -280,7 +284,10 @@ const locales = {
       engines: "Local engines",
     },
     engineOptions: {
-      anonymize: [["privacy_filter", "OpenAI Privacy Filter · local"]],
+      anonymize: [
+        ["privacy_filter", "OpenAI Privacy Filter (All languages) · local"],
+        ["privacy_filter_rizzo", "Rizzo PII 0.3B by Simone Rizzo (Italian only) · local"],
+      ],
       transcribe: [["parakeet", "NVIDIA Parakeet v3 · local"]],
       ocr: [
         ["paddle", "PaddleOCR · fast on CPU"],
@@ -309,7 +316,8 @@ const locales = {
     },
     engineDescriptions: {
       markitdown: ["Microsoft MarkItDown", "Converts Office, PDF, HTML, EPUB, and structured data to Markdown."],
-      privacy_filter: ["OpenAI Privacy Filter", "Detects PII locally across 8 categories and long context."],
+      privacy_filter: ["OpenAI Privacy Filter", "Detects PII locally across 8 categories and long context (All languages)."],
+      privacy_filter_rizzo: ["Rizzo PII 0.3B", "Italian PII ModernBERT model by Simone Rizzo: 22 categories, Tax Code, VAT ID, Land Registry (Italian only)."],
       parakeet: ["NVIDIA Parakeet v3", "Multilingual transcription with punctuation, including long recordings."],
       paddle: ["PaddleOCR / PP-StructureV3", "CPU OCR with layout, table, and reading-order reconstruction."],
       glm: ["GLM-OCR Q8", "Local multimodal OCR through Ollama; a slower mode for complex documents."],

@@ -36,8 +36,51 @@ LABEL_NAMES = dict(
         ("iban", "IBAN"),
         ("partita_iva", "PARTITA_IVA"),
         ("ip_address", "INDIRIZZO_IP"),
+        ("fullname", "PERSONA"),
+        ("persona", "PERSONA"),
+        ("nome", "NOME"),
+        ("cognome", "COGNOME"),
+        ("indirizzo", "INDIRIZZO"),
+        ("email", "EMAIL"),
+        ("telefono", "TELEFONO"),
+        ("data", "DATA"),
+        ("documento", "DOCUMENTO"),
+        ("catasto", "CATASTO"),
+        ("provincia", "PROVINCIA"),
+        ("targa", "TARGA"),
+        ("citta", "CITTA"),
+        ("luogo", "LUOGO"),
+        ("organizzazione", "ORGANIZZAZIONE"),
     ]
 )
+
+RIZZO_LABEL_NAMES = {
+    "FULLNAME": "persona",
+    "PER": "persona",
+    "FIRSTNAME": "nome",
+    "LASTNAME": "cognome",
+    "ADDRESS": "indirizzo",
+    "EMAIL": "email",
+    "PHONE": "telefono",
+    "TELEPHONENUM": "telefono",
+    "PHONENUMBER": "telefono",
+    "DATE": "data",
+    "CF": "codice_fiscale",
+    "PARTITA_IVA": "partita_iva",
+    "PIVA": "partita_iva",
+    "IBAN": "iban",
+    "ID_DOC": "documento",
+    "DOCID": "documento",
+    "CATASTO": "catasto",
+    "PROVINCE": "provincia",
+    "TARGA": "targa",
+    "IP": "ip_address",
+    "CITY": "citta",
+    "LOCATION": "luogo",
+    "LOC": "luogo",
+    "ORGANIZATION": "organizzazione",
+    "ORG": "organizzazione",
+}
 
 
 PATTERNS: list[tuple[str, re.Pattern[str]]] = [
@@ -165,6 +208,53 @@ def opf_spans(
     return found, ("; ".join(sorted(set(warnings))) or None)
 
 
+def rizzo_spans(
+    text: str, progress_path: Path
+) -> tuple[list[dict[str, Any]], str | None]:
+    from transformers import pipeline
+
+    ranges = list(chunk_ranges(text, max_chars=3000, overlap=256))
+    progress(progress_path, 0.02, "Caricamento Rizzo PII 0.3B (CPU)")
+    nlp = pipeline(
+        "token-classification",
+        model="rizzoaiacademy/rizzo-pii-0.3B",
+        aggregation_strategy="simple",
+        device="cpu",
+    )
+    found: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    for index, (primary_start, primary_end, start, end) in enumerate(ranges):
+        progress(
+            progress_path,
+            0.05 + index / max(1, len(ranges)) * 0.86,
+            f"Rizzo PII 0.3B: blocco {index + 1}/{len(ranges)}",
+        )
+        chunk_text = text[start:end]
+        if not chunk_text.strip():
+            continue
+        try:
+            entities = nlp(chunk_text)
+            for ent in entities:
+                global_start = start + int(ent["start"])
+                global_end = start + int(ent["end"])
+                if global_end <= primary_start or global_start >= primary_end:
+                    continue
+                raw_label = str(ent["entity_group"]).upper()
+                norm_label = RIZZO_LABEL_NAMES.get(raw_label, raw_label.lower())
+                found.append(
+                    {
+                        "label": norm_label,
+                        "start": global_start,
+                        "end": global_end,
+                        "text": text[global_start:global_end],
+                        "source": "Rizzo PII 0.3B (Italiano)",
+                    }
+                )
+        except Exception as exc:
+            warnings.append(str(exc))
+    return found, ("; ".join(sorted(set(warnings))) or None)
+
+
 def remove_overlaps(spans: list[dict[str, Any]]) -> list[dict[str, Any]]:
     unique: dict[tuple[int, int, str], dict[str, Any]] = {}
     for span in spans:
@@ -237,14 +327,23 @@ def anonymize(args: argparse.Namespace) -> None:
     output_path = Path(args.output)
     progress_path = Path(args.progress)
     text = input_path.read_text(encoding="utf-8")
+    engine_choice = getattr(args, "engine", "privacy_filter")
     deterministic = regex_spans(text, bool(args.include_dates))
-    detected, warning = opf_spans(text, progress_path)
+    if engine_choice == "privacy_filter_rizzo":
+        detected, warning = rizzo_spans(text, progress_path)
+        engine_title = "Rizzo PII 0.3B (Simone Rizzo) + regole italiane locali"
+        model_name = "rizzoaiacademy/rizzo-pii-0.3B"
+    else:
+        detected, warning = opf_spans(text, progress_path)
+        engine_title = "OpenAI Privacy Filter + regole italiane locali"
+        model_name = "openai/privacy-filter"
+
     selected = remove_overlaps(deterministic + detected)
     redacted, public_spans, counts = apply_redactions(text, selected)
     progress(progress_path, 0.96, "Creazione del rapporto privacy")
     payload = {
-        "engine": "OpenAI Privacy Filter + regole italiane locali",
-        "model": "openai/privacy-filter",
+        "engine": engine_title,
+        "model": model_name,
         "characters": len(text),
         "detections": len(selected),
         "counts": dict(sorted(counts.items())),
@@ -346,6 +445,11 @@ def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser()
     commands = root.add_subparsers(dest="command", required=True)
     anonymize_command = commands.add_parser("anonymize")
+    anonymize_command.add_argument(
+        "--engine",
+        default="privacy_filter",
+        choices=["privacy_filter", "privacy_filter_rizzo"],
+    )
     anonymize_command.add_argument("--input", required=True)
     anonymize_command.add_argument("--output", required=True)
     anonymize_command.add_argument("--progress", required=True)

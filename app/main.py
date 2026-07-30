@@ -43,12 +43,13 @@ VALID_ENGINES = {
     "glm",
     "parakeet",
     "privacy_filter",
+    "privacy_filter_rizzo",
 }
 ENGINES_BY_OPERATION = {
     "convert": {"markitdown"},
     "ocr": {"paddle", "paddle_structure", "glm"},
     "transcribe": {"parakeet"},
-    "anonymize": {"privacy_filter"},
+    "anonymize": {"privacy_filter", "privacy_filter_rizzo"},
     "vault_encrypt": {"markitdown"},
     "vault_decrypt": {"markitdown"},
 }
@@ -367,6 +368,9 @@ def status() -> dict[str, Any]:
     parakeet_model = model_cached(
         "models--nvidia--parakeet-tdt-0.6b-v3/snapshots/*/model.safetensors"
     )
+    rizzo_model_ready = model_cached(
+        "models--rizzoaiacademy--rizzo-pii-0.3B/snapshots/*/config.json"
+    )
     return {
         "local_only": True,
         "bind": f"127.0.0.1:{PORT}",
@@ -381,8 +385,17 @@ def status() -> dict[str, Any]:
                 "ready": ai_ok,
                 "model_ready": opf_model_ready,
                 "detail": (
-                    "OpenAI Privacy Filter locale"
+                    "OpenAI Privacy Filter locale (Tutte le lingue)"
                     if opf_model_ready
+                    else "Modello da scaricare al primo uso"
+                ),
+            },
+            "privacy_filter_rizzo": {
+                "ready": ai_ok,
+                "model_ready": rizzo_model_ready,
+                "detail": (
+                    "Rizzo PII 0.3B locale (Solo italiano)"
+                    if rizzo_model_ready
                     else "Modello da scaricare al primo uso"
                 ),
             },

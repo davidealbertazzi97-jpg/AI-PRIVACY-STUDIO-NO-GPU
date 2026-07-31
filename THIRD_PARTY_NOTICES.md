@@ -53,6 +53,11 @@ again when distributing a preassembled environment.
 | OpenAI Privacy Filter package | commit `f7f00ca7fb869683eb732c010299d901457f19c3` | Apache-2.0 |
 | Rizzo PII 0.3B (Simone Rizzo / Rizzo AI Academy) | 0.3B (ModernBERT) | MIT (Base model mmBERT: Apache-2.0) |
 
+### Interactive Anonymization UI & Color Palette Attribution
+- **Source**: Rizzo PII (`https://github.com/Rizzo-AI-Academy/rizzo-pii`) by Simone Rizzo / Rizzo AI Academy
+- **License**: MIT License
+- **Usage**: PII Entity Tag color system, inline placeholder/original toggle design, and formatted document print preview.
+
 Transitive dependencies keep their upstream licenses. Their license metadata
 is installed inside each virtual environment by the package manager.
 

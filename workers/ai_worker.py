@@ -341,16 +341,30 @@ def anonymize(args: argparse.Namespace) -> None:
     selected = remove_overlaps(deterministic + detected)
     redacted, public_spans, counts = apply_redactions(text, selected)
     progress(progress_path, 0.96, "Creazione del rapporto privacy")
+
+    ui_spans = [
+        {
+            "label": s["label"],
+            "start": s["start"],
+            "end": s["end"],
+            "original": s["text"],
+            "placeholder": s.get("placeholder", f"[{s['label'].upper()}]"),
+            "source": s["source"],
+        }
+        for s in selected
+    ]
+
     payload = {
         "engine": engine_title,
         "model": model_name,
         "characters": len(text),
         "detections": len(selected),
         "counts": dict(sorted(counts.items())),
-        "spans": public_spans,
+        "spans": ui_spans,
         "warning": warning,
         "review_required": True,
         "redacted_text": redacted,
+        "original_text": text,
         "_private_spans": selected,
     }
     write_json(output_path, payload)

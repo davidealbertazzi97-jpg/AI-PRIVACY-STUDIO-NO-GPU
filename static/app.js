@@ -718,6 +718,113 @@ async function loadJobs() {
   }
 }
 
+function buildInteractivePiiDocument(result) {
+  if (!result || !result.spans || !result.spans.length) return "";
+
+  const originalText = result.original_text || result.redacted_text || "";
+  const spans = [...result.spans].sort((a, b) => a.start - b.start);
+
+  let htmlPieces = [];
+  let cursor = 0;
+
+  spans.forEach((span) => {
+    if (span.start >= cursor) {
+      htmlPieces.push(escapeHtml(originalText.substring(cursor, span.start)));
+      const label = escapeHtml(span.label || "pii");
+      const orig = escapeHtml(span.original || "");
+      const place = escapeHtml(span.placeholder || `[${label.toUpperCase()}]`);
+
+      htmlPieces.push(
+        `<span class="pii-tag entity-${label.toLowerCase()}" ` +
+        `data-original="${orig}" data-placeholder="${place}" ` +
+        `onclick="togglePiiTag(this)" title="Clicca per invertire (Originale / Anonimizzato)">` +
+        `<span class="pii-label">${label}</span> ` +
+        `<span class="pii-value">${place}</span>` +
+        `</span>`
+      );
+      cursor = span.end;
+    }
+  });
+
+  htmlPieces.push(escapeHtml(originalText.substring(cursor)));
+  const piiHtml = htmlPieces.join("");
+
+  return `
+    <div class="pii-document-container printable-area">
+      <div class="pii-toolbar">
+        <strong>🛡️ Studio Anonimizzazione PII (Ispirato a Simone Rizzo PII)</strong>
+        <div class="pii-toolbar-actions">
+          <button type="button" class="pii-btn" id="global-toggle-btn" onclick="toggleAllPiiTags()">
+            👁️ Mostra Originale
+          </button>
+          <button type="button" class="pii-btn" onclick="printPiiDocument()">
+            🖨️ Stampa Documento
+          </button>
+          <button type="button" class="pii-btn" onclick="copyRedactedText()">
+            📋 Copia Testo Anonimizzato
+          </button>
+        </div>
+      </div>
+      <div class="pii-document-body" id="pii-doc-content">${piiHtml}</div>
+    </div>
+  `;
+}
+
+function togglePiiTag(el) {
+  const isOriginal = el.classList.contains("showing-original");
+  const valEl = el.querySelector(".pii-value");
+  if (isOriginal) {
+    el.classList.remove("showing-original");
+    valEl.textContent = el.dataset.placeholder;
+  } else {
+    el.classList.add("showing-original");
+    valEl.textContent = el.dataset.original;
+  }
+}
+
+function toggleAllPiiTags() {
+  const btn = document.getElementById("global-toggle-btn");
+  const tags = document.querySelectorAll(".pii-tag");
+  if (!btn) return;
+  const showOrig = btn.classList.toggle("active");
+
+  btn.innerHTML = showOrig ? "🛡️ Mostra Anonimizzato" : "👁️ Mostra Originale";
+
+  tags.forEach((tag) => {
+    const valEl = tag.querySelector(".pii-value");
+    if (showOrig) {
+      tag.classList.add("showing-original");
+      valEl.textContent = tag.dataset.original;
+    } else {
+      tag.classList.remove("showing-original");
+      valEl.textContent = tag.dataset.placeholder;
+    }
+  });
+}
+
+function printPiiDocument() {
+  window.print();
+}
+
+function copyRedactedText() {
+  const doc = document.getElementById("pii-doc-content");
+  if (!doc) return;
+  
+  let clone = doc.cloneNode(true);
+  clone.querySelectorAll(".pii-tag").forEach((tag) => {
+    tag.replaceWith(tag.dataset.placeholder);
+  });
+  
+  navigator.clipboard.writeText(clone.textContent).then(() => {
+    alert("Testo anonimizzato copiato negli appunti!");
+  });
+}
+
+window.togglePiiTag = togglePiiTag;
+window.toggleAllPiiTags = toggleAllPiiTags;
+window.printPiiDocument = printPiiDocument;
+window.copyRedactedText = copyRedactedText;
+
 function showJob(jobId) {
   const job = state.jobs.find((item) => item.id === jobId);
   if (!job) return;
@@ -726,6 +833,7 @@ function showJob(jobId) {
   const countHtml = Object.entries(counts).length
     ? `<div class="detail-counts">${Object.entries(counts).map(([key, value]) => `<span>${escapeHtml(key)} · ${value}</span>`).join("")}</div>`
     : "";
+  const interactiveDoc = buildInteractivePiiDocument(result);
   const downloads = job.status === "completed" ? `
     <div class="download-actions">
       <a class="primary-button" href="/api/jobs/${job.id}/download">${escapeHtml(message("downloadResult"))}</a>
@@ -733,10 +841,10 @@ function showJob(jobId) {
     </div>
   ` : "";
   $("#job-detail").innerHTML = `
-    <div class="detail-title">
-      <p class="eyebrow">${escapeHtml(locale().operationNames[job.operation] || job.operation)}</p>
-      <h2>${escapeHtml(job.input_name)}</h2>
-      <p>${escapeHtml(localizeServerText(job.stage))} · ${humanDate(job.updated_at)}</p>
+    <div class="detail-header">
+      <span class="detail-kind">${escapeHtml(localizeServerText(job.engine_name || job.engine))}</span>
+      <h3>${escapeHtml(job.title)}</h3>
+      <p>${escapeHtml(localizeServerText(job.message || ""))}</p>
     </div>
     <div class="detail-stats">
       <div class="detail-stat"><strong>${Math.round(job.progress * 100)}%</strong><small>${escapeHtml(message("progress"))}</small></div>
@@ -745,6 +853,7 @@ function showJob(jobId) {
     </div>
     ${job.error ? `<div class="detail-error">${escapeHtml(localizeServerText(job.error))}</div>` : ""}
     ${countHtml}
+    ${interactiveDoc}
     ${result.review_required ? `<div class="process-note"><span>!</span><p>${escapeHtml(message("review"))}</p></div>` : ""}
     ${downloads}
   `;

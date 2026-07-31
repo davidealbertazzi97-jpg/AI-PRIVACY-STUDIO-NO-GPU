@@ -2220,3 +2220,186 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Simone Rizzo PII Inspired Entity Tags & Interactive Anonymization Studio */
+.pii-document-container {
+  background: var(--surface-bg, #0f172a);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.pii-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color, #334155);
+  margin-bottom: 16px;
+}
+
+.pii-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pii-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pii-btn:hover {
+  background: #334155;
+  border-color: #38bdf8;
+  color: #fff;
+}
+.pii-btn.active {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #fff;
+}
+
+.pii-document-body {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* PII Tag Base */
+.pii-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s ease, filter 0.15s ease;
+  vertical-align: baseline;
+  margin: 0 2px;
+}
+.pii-tag:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.2);
+}
+
+.pii-tag .pii-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.pii-tag .pii-value {
+  font-family: inherit;
+}
+
+/* Color Palettes by Entity Category */
+.pii-tag.entity-persona, .pii-tag.entity-fullname, .pii-tag.entity-nome, .pii-tag.entity-cognome {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366f1;
+  color: #818cf8;
+}
+.pii-tag.entity-luogo, .pii-tag.entity-indirizzo, .pii-tag.entity-citta, .pii-tag.entity-provincia {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+}
+.pii-tag.entity-organizzazione {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+.pii-tag.entity-email, .pii-tag.entity-private_email {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: #06b6d4;
+  color: #22d3ee;
+}
+.pii-tag.entity-telefono, .pii-tag.entity-private_phone {
+  background: rgba(20, 184, 166, 0.2);
+  border-color: #14b8a6;
+  color: #2dd4bf;
+}
+.pii-tag.entity-codice_fiscale {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: #f43f5e;
+  color: #fb7185;
+}
+.pii-tag.entity-partita_iva {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
+  color: #a78bfa;
+}
+.pii-tag.entity-iban, .pii-tag.entity-conto {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: #eab308;
+  color: #facc15;
+}
+.pii-tag.entity-targa, .pii-tag.entity-documento, .pii-tag.entity-catasto {
+  background: rgba(100, 116, 139, 0.2);
+  border-color: #64748b;
+  color: #94a3b8;
+}
+.pii-tag.entity-data, .pii-tag.entity-private_date {
+  background: rgba(217, 70, 239, 0.2);
+  border-color: #d946ef;
+  color: #e879f9;
+}
+
+/* Showing Original State */
+.pii-tag.showing-original {
+  background: rgba(254, 240, 138, 0.25) !important;
+  border-color: #eab308 !important;
+  color: #fef08a !important;
+  text-decoration: underline dotted;
+}
+
+/* Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-area, .printable-area * {
+    visibility: visible;
+  }
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000 !important;
+    background: #fff !important;
+  }
+  .pii-document-body {
+    background: #fff !important;
+    color: #000 !important;
+    border: none !important;
+  }
+  .pii-toolbar {
+    display: none !important;
+  }
+}
+

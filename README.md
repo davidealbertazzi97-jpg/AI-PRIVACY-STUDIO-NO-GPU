@@ -99,6 +99,7 @@ Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 
 - Italian or English interface with a saved local preference.
 - PII redaction with a choice between OpenAI Privacy Filter (multilingual) or Rizzo PII 0.3B by Simone Rizzo (specialized Italian PII: Tax Code, VAT ID, Land Registry, Document ID, etc.), plus deterministic Italian patterns.
+- Interactive PII Anonymization Viewer inspired by [Rizzo PII](https://github.com/Rizzo-AI-Academy/rizzo-pii) (Simone Rizzo / Rizzo AI Academy): color-coded entity badges (`PERSON`, `ADDRESS`, `EMAIL`, `PHONE`, `VAT_ID`, `TAX_CODE`, `IBAN`), click-to-reveal original text ("see what was there before"), and formatted print/copy views.
 - Audio and video transcription with NVIDIA Parakeet.
 - OCR for images and multi-page PDF files with PaddleOCR, PP-StructureV3, or
   GLM-OCR.
@@ -261,6 +262,7 @@ conversione.
 
 - Interfaccia in italiano o inglese con preferenza salvata in locale.
 - Anonimizzazione PII a scelta tra OpenAI Privacy Filter (Tutte le lingue) e Rizzo PII 0.3B di Simone Rizzo (Solo italiano: Codice Fiscale, P.IVA, Dati Catastali, Documento ID, ecc.), oltre a regole italiane deterministiche.
+- Visualizzatore Interattivo Anonimizzazione PII ispirato a [Rizzo PII](https://github.com/Rizzo-AI-Academy/rizzo-pii) (Simone Rizzo / Rizzo AI Academy): tag cromatici per categoria di entità (`PERSONA`, `INDIRIZZO`, `EMAIL`, `TELEFONO`, `P.IVA`, `CODICE_FISCALE`, `IBAN`), toggle interattivo per mostrare/nascondere i valori originali ("vedere cosa c'era prima") e la visualizzazione di stampa formattata per la conservazione o il salvataggio in PDF.
 - Trascrizione audio e video con NVIDIA Parakeet.
 - OCR di immagini e PDF multipagina con PaddleOCR, PP-StructureV3 o GLM-OCR.
 - Conversione di Office, PDF, HTML, EPUB e dati strutturati con MarkItDown.

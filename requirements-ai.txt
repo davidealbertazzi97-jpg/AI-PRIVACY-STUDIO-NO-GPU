@@ -3,6 +3,6 @@ librosa==0.11.0
 numba==0.63.1
 numpy==2.3.5
 soundfile==0.14.0
-setuptools==83.0.0
+setuptools==81.0.0
 transformers==5.14.1
-opf @ git+https://github.com/openai/privacy-filter.git@f7f00ca7fb869683eb732c010299d901457f19c3
+opf @ https://github.com/openai/privacy-filter/archive/f7f00ca7fb869683eb732c010299d901457f19c3.tar.gz#sha256=c79c613e3600bfee1357fb37528d439e703484f590552ffe9ef79a8050ccbe39

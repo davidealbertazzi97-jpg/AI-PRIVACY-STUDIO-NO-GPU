@@ -23,12 +23,33 @@ IGNORED_NAMES = {
 IGNORED_SUFFIXES = {".pyc", ".pyo"}
 
 TRACKED_PATHS = [
-    "app", "licenses", "native", "packaging", "runtime_guard", "scripts",
-    "static", "workers", "CHANGELOG.md", "CONTRIBUTING.md", "DISCLAIMER.md",
-    "LICENSE", "NOTICE", "README.md", "SECURITY.md", "THIRD_PARTY_NOTICES.md",
-    "install.cmd", "install.ps1", "install.sh", "pyproject.toml",
-    "requirements-ai.txt", "requirements-core.txt", "requirements-dev.txt",
-    "requirements-paddle.txt", "start.cmd", "start.ps1", "start.sh"
+    "app",
+    "licenses",
+    "native",
+    "packaging",
+    "runtime_guard",
+    "scripts",
+    "static",
+    "workers",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "DISCLAIMER.md",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "install.cmd",
+    "install.ps1",
+    "install.sh",
+    "pyproject.toml",
+    "requirements-ai.txt",
+    "requirements-core.txt",
+    "requirements-dev.txt",
+    "requirements-paddle.txt",
+    "start.cmd",
+    "start.ps1",
+    "start.sh",
 ]
 
 
@@ -42,13 +63,12 @@ def clean_tar_entry(info: tarfile.TarInfo) -> tarfile.TarInfo | None:
     return None if should_exclude(Path(info.name)) else info
 
 
-def write_clean_tree(
-    archive: zipfile.ZipFile, source: Path, archive_root: str
-) -> None:
+def write_clean_tree(archive: zipfile.ZipFile, source: Path, archive_root: str) -> None:
     for path in source.rglob("*"):
         relative = path.relative_to(ROOT)
         if path.is_file() and not should_exclude(relative):
             archive.write(path, f"{archive_root}/{relative.as_posix()}")
+
 
 print("=== Building Local Release Bundles for AI Privacy Studio ===")
 
@@ -61,14 +81,24 @@ appdir_source = appdir / "usr" / "share" / "ai-privacy-studio"
 appdir_source.mkdir(parents=True, exist_ok=True)
 
 # Create source.tar
-subprocess.run([
-    "git", "archive", "--format=tar",
-    f"--output={appdir_source / 'source.tar'}", "HEAD", "--"
-] + TRACKED_PATHS, cwd=ROOT, check=True)
+subprocess.run(
+    [
+        "git",
+        "archive",
+        "--format=tar",
+        f"--output={appdir_source / 'source.tar'}",
+        "HEAD",
+        "--",
+    ]
+    + TRACKED_PATHS,
+    cwd=ROOT,
+    check=True,
+)
 
 # Copy AppRun, desktop, icon
 shutil.copy(ROOT / "packaging" / "linux" / "AppRun", appdir / "AppRun")
-os.chmod(appdir / "AppRun", 0o755)
+# The AppImage entry point must be executable by every user who launches it.
+os.chmod(appdir / "AppRun", 0o755)  # nosec B103
 shutil.copy(ROOT / "static" / "icon.svg", appdir / "ai-privacy-studio.svg")
 shutil.copy(ROOT / "LICENSE", appdir / "LICENSE")
 shutil.copy(ROOT / "THIRD_PARTY_NOTICES.md", appdir / "THIRD_PARTY_NOTICES.md")
@@ -105,7 +135,7 @@ with zipfile.ZipFile(win_zip, "w", zipfile.ZIP_DEFLATED) as zf:
 print(f"Created: {win_zip.name} ({win_zip.stat().st_size / 1024 / 1024:.2f} MB)")
 
 # Create macOS Tarball
-mac_tar = DIST / f"AI-Privacy-Studio-v{VERSION}-macOS-Universal.tar.gz"
+mac_tar = DIST / f"AI-Privacy-Studio-v{VERSION}-macOS-Apple-Silicon.tar.gz"
 with tarfile.open(mac_tar, "w:gz") as tar:
     for rel_path in TRACKED_PATHS:
         full_p = ROOT / rel_path

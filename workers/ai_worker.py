@@ -129,6 +129,8 @@ DATE_PATTERN = re.compile(
 
 PARAKEET_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
 PARAKEET_REVISION = "7c35754d166cca382ad1e53e68b01e7c575f3a1d"
+RIZZO_MODEL_ID = "rizzoaiacademy/rizzo-pii-0.3B"
+RIZZO_REVISION = "a7f1160d829c7b436a6d8f8ebdae523f83437edf"
 
 
 def regex_spans(text: str, include_dates: bool) -> list[dict[str, Any]]:
@@ -211,13 +213,24 @@ def opf_spans(
 def rizzo_spans(
     text: str, progress_path: Path
 ) -> tuple[list[dict[str, Any]], str | None]:
-    from transformers import pipeline
+    from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
 
     ranges = list(chunk_ranges(text, max_chars=3000, overlap=256))
     progress(progress_path, 0.02, "Caricamento Rizzo PII 0.3B (CPU)")
+    tokenizer = AutoTokenizer.from_pretrained(
+        RIZZO_MODEL_ID,
+        revision=RIZZO_REVISION,
+        local_files_only=True,
+    )
+    model = AutoModelForTokenClassification.from_pretrained(
+        RIZZO_MODEL_ID,
+        revision=RIZZO_REVISION,
+        local_files_only=True,
+    )
     nlp = pipeline(
         "token-classification",
-        model="rizzoaiacademy/rizzo-pii-0.3B",
+        model=model,
+        tokenizer=tokenizer,
         aggregation_strategy="simple",
         device="cpu",
     )
@@ -332,7 +345,7 @@ def anonymize(args: argparse.Namespace) -> None:
     if engine_choice == "privacy_filter_rizzo":
         detected, warning = rizzo_spans(text, progress_path)
         engine_title = "Rizzo PII 0.3B (Simone Rizzo) + regole italiane locali"
-        model_name = "rizzoaiacademy/rizzo-pii-0.3B"
+        model_name = RIZZO_MODEL_ID
     else:
         detected, warning = opf_spans(text, progress_path)
         engine_title = "OpenAI Privacy Filter + regole italiane locali"

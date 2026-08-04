@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ os.environ["PRIVACY_STUDIO_OUTPUTS"] = str(Path(_TEST_ROOT.name) / "outputs")
 vault = importlib.import_module("app.engines.vault")
 guarded_environment = importlib.import_module("scripts.start").guarded_environment
 apply_redactions = importlib.import_module("workers.ai_worker").apply_redactions
+rizzo_spans = importlib.import_module("workers.ai_worker").rizzo_spans
 
 
 class PrivacyCleanupTests(unittest.TestCase):
@@ -80,6 +82,44 @@ class PrivacyCleanupTests(unittest.TestCase):
 
 
 class DataMinimizationTests(unittest.TestCase):
+    def test_rizzo_loader_uses_the_verified_offline_snapshot(self) -> None:
+        calls: dict[str, object] = {}
+
+        class FakeTokenizer:
+            @staticmethod
+            def from_pretrained(model_id: str, **kwargs: object) -> object:
+                calls["tokenizer"] = (model_id, kwargs)
+                return object()
+
+        class FakeModel:
+            @staticmethod
+            def from_pretrained(model_id: str, **kwargs: object) -> object:
+                calls["model"] = (model_id, kwargs)
+                return object()
+
+        def fake_pipeline(task: str, **kwargs: object) -> object:
+            calls["pipeline"] = (task, kwargs)
+            return lambda _text: [{"start": 0, "end": 5, "entity_group": "FULLNAME"}]
+
+        fake_transformers = SimpleNamespace(
+            AutoModelForTokenClassification=FakeModel,
+            AutoTokenizer=FakeTokenizer,
+            pipeline=fake_pipeline,
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            progress_path = Path(temporary) / "progress.json"
+            with patch.dict(sys.modules, {"transformers": fake_transformers}):
+                spans, warning = rizzo_spans("Mario", progress_path)
+
+        self.assertIsNone(warning)
+        self.assertEqual(spans[0]["label"], "persona")
+        for key in ("tokenizer", "model"):
+            _, kwargs = calls[key]
+            self.assertTrue(kwargs["local_files_only"])
+            self.assertEqual(len(str(kwargs["revision"])), 40)
+        _, pipeline_kwargs = calls["pipeline"]
+        self.assertNotIn("local_files_only", pipeline_kwargs)
+
     def test_public_redaction_report_has_no_value_preview(self) -> None:
         original = "Contact alice@example.test now."
         start = original.index("alice")

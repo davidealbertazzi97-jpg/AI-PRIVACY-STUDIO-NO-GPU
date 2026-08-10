@@ -10,15 +10,39 @@ ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 DIST.mkdir(exist_ok=True)
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 TRACKED_PATHS = [
-    "app", "licenses", "native", "packaging", "runtime_guard", "scripts",
-    "static", "workers", "CHANGELOG.md", "CONTRIBUTING.md", "DISCLAIMER.md",
-    "LICENSE", "NOTICE", "README.md", "SECURITY.md", "THIRD_PARTY_NOTICES.md",
-    "install.cmd", "install.ps1", "install.sh", "pyproject.toml",
-    "requirements-ai.txt", "requirements-core.txt", "requirements-dev.txt",
-    "requirements-paddle.txt", "start.cmd", "start.ps1", "start.sh"
+    "app",
+    "licenses",
+    "native",
+    "packaging",
+    "runtime_guard",
+    "scripts",
+    "static",
+    "workers",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "DISCLAIMER.md",
+    "LICENSE",
+    "LICENSE-GUIDE.md",
+    "NOTICE",
+    "README.md",
+    "RIZZO-PII-AUDIT.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "install.cmd",
+    "install.ps1",
+    "install.sh",
+    "pyproject.toml",
+    "requirements-ai.txt",
+    "requirements-core.txt",
+    "requirements-pdf-editable.txt",
+    "requirements-dev.txt",
+    "requirements-paddle.txt",
+    "start.cmd",
+    "start.ps1",
+    "start.sh",
 ]
 
 print("=== Building Local Release Bundles for AI Privacy Studio ===")
@@ -32,19 +56,34 @@ appdir_source = appdir / "usr" / "share" / "ai-privacy-studio"
 appdir_source.mkdir(parents=True, exist_ok=True)
 
 # Create source.tar
-subprocess.run([
-    "git", "archive", "--format=tar",
-    f"--output={appdir_source / 'source.tar'}", "HEAD", "--"
-] + TRACKED_PATHS, cwd=ROOT, check=True)
+subprocess.run(
+    [
+        "git",
+        "archive",
+        "--format=tar",
+        f"--output={appdir_source / 'source.tar'}",
+        "HEAD",
+        "--",
+    ]
+    + TRACKED_PATHS,
+    cwd=ROOT,
+    check=True,
+)
 
 # Copy AppRun, desktop, icon
 shutil.copy(ROOT / "packaging" / "linux" / "AppRun", appdir / "AppRun")
-os.chmod(appdir / "AppRun", 0o755)
+os.chmod(appdir / "AppRun", 0o755)  # nosec B103
 shutil.copy(ROOT / "static" / "icon.svg", appdir / "ai-privacy-studio.svg")
 shutil.copy(ROOT / "LICENSE", appdir / "LICENSE")
 shutil.copy(ROOT / "THIRD_PARTY_NOTICES.md", appdir / "THIRD_PARTY_NOTICES.md")
-shutil.copy(ROOT / "packaging" / "INSTALLER_NOTICE.en-it.txt", appdir / "INSTALLER_NOTICE.en-it.txt")
-shutil.copy(ROOT / "packaging" / "linux" / "ai-privacy-studio.desktop", appdir / "ai-privacy-studio.desktop")
+shutil.copy(
+    ROOT / "packaging" / "INSTALLER_NOTICE.en-it.txt",
+    appdir / "INSTALLER_NOTICE.en-it.txt",
+)
+shutil.copy(
+    ROOT / "packaging" / "linux" / "ai-privacy-studio.desktop",
+    appdir / "ai-privacy-studio.desktop",
+)
 
 print("AppDir payload assembled.")
 

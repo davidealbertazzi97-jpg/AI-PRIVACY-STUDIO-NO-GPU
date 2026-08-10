@@ -10,6 +10,7 @@ from transformers import AutoProcessor
 
 APP_DIR = Path(__file__).resolve().parent.parent
 HF_HOME = APP_DIR / "models" / "huggingface"
+TIKTOKEN_CACHE = APP_DIR / "models" / "tiktoken"
 PARAKEET_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
 PARAKEET_REVISION = "7c35754d166cca382ad1e53e68b01e7c575f3a1d"
 OPF_MODEL_ID = "openai/privacy-filter"
@@ -18,6 +19,7 @@ OPF_REVISION = "7ffa9a043d54d1be65afb281eddf0ffbe629385b"
 
 def main() -> int:
     os.environ["HF_HOME"] = str(HF_HOME)
+    os.environ["TIKTOKEN_CACHE_DIR"] = str(TIKTOKEN_CACHE)
     print("Scarico NVIDIA Parakeet v3 nella cache locale...")
     snapshot_download(
         repo_id=PARAKEET_MODEL_ID,
@@ -51,6 +53,10 @@ def main() -> int:
     if not (checkpoint / "model.safetensors").is_file():
         raise RuntimeError("Checkpoint OpenAI Privacy Filter incompleto.")
     os.environ["OPF_CHECKPOINT"] = str(checkpoint)
+    print("Scarico e verifico il vocabolario locale o200k_base...")
+    from tiktoken import get_encoding
+
+    get_encoding("o200k_base")
     detector = OPF(device="cpu", output_mode="typed", decode_mode="viterbi")
     result = detector.redact(
         "Scrivi a mario.rossi@example.test oppure chiama il 333 1234567."

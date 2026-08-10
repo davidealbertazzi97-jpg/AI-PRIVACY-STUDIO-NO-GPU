@@ -50,6 +50,7 @@ class Paths:
     inbox: Path
     work: Path
     vault: Path
+    permanent_vault: Path
     outputs: Path
     state: Path
     database: Path
@@ -90,6 +91,7 @@ class Paths:
             inbox=data / "inbox",
             work=data / "work",
             vault=data / "vault",
+            permanent_vault=data / "permanent-vault",
             outputs=outputs,
             state=state,
             database=data / "privacy-studio.sqlite3",
@@ -108,6 +110,7 @@ class Paths:
             self.inbox,
             self.work,
             self.vault,
+            self.permanent_vault,
             self.outputs,
             self.state,
             self.picocrypt.parent,
@@ -117,6 +120,7 @@ class Paths:
         os.chmod(self.inbox, 0o700)
         os.chmod(self.work, 0o700)
         os.chmod(self.vault, 0o700)
+        os.chmod(self.permanent_vault, 0o700)
         os.chmod(self.outputs, 0o700)
         os.chmod(self.state, 0o700)
 

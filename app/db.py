@@ -129,7 +129,10 @@ class JobStore:
                 SET status = 'queued', stage = 'Ripresa dopo il riavvio',
                     updated_at = ?
                 WHERE status = 'running'
-                  AND operation NOT IN ('vault_encrypt', 'vault_decrypt')
+                  AND operation NOT IN (
+                      'vault_encrypt', 'vault_decrypt',
+                      'vault_group_encrypt', 'vault_group_decrypt'
+                  )
                 """,
                 (utc_now(),),
             )
@@ -141,7 +144,10 @@ class JobStore:
                     error = ?,
                     updated_at = ?
                 WHERE status IN ('running', 'queued')
-                  AND operation IN ('vault_encrypt', 'vault_decrypt')
+                  AND operation IN (
+                      'vault_encrypt', 'vault_decrypt',
+                      'vault_group_encrypt', 'vault_group_decrypt'
+                  )
                 """,
                 (
                     "La cassaforte non salva mai la password. "

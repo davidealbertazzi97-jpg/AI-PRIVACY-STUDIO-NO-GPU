@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -99,6 +100,7 @@ def encrypt_to_vault(
     *,
     paranoid: bool = False,
     recovery: bool = False,
+    kind: str = "file",
 ) -> tuple[Path, dict[str, Any]]:
     progress(0.08, "Preparazione volume Picocrypt")
     stage = Path(tempfile.mkdtemp(prefix="picocrypt-", dir=PATHS.work))
@@ -113,7 +115,13 @@ def encrypt_to_vault(
             paranoid=paranoid,
             recovery=recovery,
         )
-        target_name = f"{path.stem}-{os.urandom(4).hex()}{path.suffix}.pcv"
+        token = os.urandom(4).hex()
+        if kind == "group":
+            target_name = f"{safe_name(path.stem)}-{token}.vault.zip.pcv"
+        elif kind == "dictionary":
+            target_name = f"{safe_name(path.stem)}-{token}.dizionario.json.pcv"
+        else:
+            target_name = f"{path.stem}-{token}{path.suffix}.pcv"
         target = PATHS.vault / safe_name(target_name)
         shutil.move(encrypted, target)
         os.chmod(target, 0o600)
@@ -127,7 +135,68 @@ def encrypt_to_vault(
         "format": "pcv",
         "paranoid": paranoid,
         "reed_solomon": recovery,
+        "kind": kind,
         "vault_name": target.name,
+    }
+
+
+def decrypt_group_from_vault(
+    path: Path,
+    password: str,
+    output_dir: Path,
+    progress: Progress,
+) -> tuple[Path, dict[str, Any]]:
+    """Decrypt one Picocrypt-protected ZIP and safely unpack its documents."""
+    if not path.name.endswith(".vault.zip.pcv"):
+        raise RuntimeError(
+            "Per aprire un vault di gruppo serve un volume .vault.zip.pcv."
+        )
+    progress(0.08, "Preparazione vault locale")
+    stage = Path(tempfile.mkdtemp(prefix="picocrypt-vault-", dir=PATHS.work))
+    extracted: list[str] = []
+    try:
+        staged = stage / safe_name(path.name)
+        shutil.copy2(path, staged)
+        progress(0.18, "Decifratura vault locale in corso")
+        decrypted, _ = _run_picocrypt(staged, password, decrypt=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        used: set[str] = set()
+        with zipfile.ZipFile(decrypted) as archive:
+            for info in archive.infolist():
+                if info.is_dir():
+                    continue
+                mode = (info.external_attr >> 16) & 0o170000
+                if mode == 0o120000:
+                    raise RuntimeError(
+                        "Il vault contiene un collegamento non consentito."
+                    )
+                name = safe_name(Path(info.filename).name)
+                if not name:
+                    continue
+                target_name = name
+                if target_name in used or (output_dir / target_name).exists():
+                    target_name = (
+                        f"{Path(name).stem}-{os.urandom(3).hex()}{Path(name).suffix}"
+                    )
+                used.add(target_name)
+                target = output_dir / target_name
+                with archive.open(info) as source, target.open("xb") as destination:
+                    shutil.copyfileobj(source, destination, length=8 * 1024 * 1024)
+                os.chmod(target, 0o600)
+                extracted.append(target.name)
+        manifest = output_dir / "VAULT-CONTENTS.txt"
+        manifest.write_text(
+            "Documenti estratti dal vault locale\n\n" + "\n".join(extracted) + "\n",
+            encoding="utf-8",
+        )
+        os.chmod(manifest, 0o600)
+    finally:
+        shutil.rmtree(stage, ignore_errors=True)
+    progress(0.96, "Documenti del vault estratti")
+    return manifest, {
+        "engine": "Picocrypt CLI 1.49",
+        "format": "vault.zip.pcv",
+        "files": extracted,
     }
 
 

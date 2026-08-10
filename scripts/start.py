@@ -44,6 +44,10 @@ def huggingface_root() -> Path:
     return APP_DIR / "models" / "huggingface"
 
 
+def tiktoken_root() -> Path:
+    return APP_DIR / "models" / "tiktoken"
+
+
 def opf_checkpoint() -> Path:
     return (
         huggingface_root()
@@ -218,6 +222,7 @@ def guarded_environment(
             "HF_HOME": str(huggingface_root()),
             "HF_HUB_OFFLINE": "1",
             "TRANSFORMERS_OFFLINE": "1",
+            "TIKTOKEN_CACHE_DIR": str(tiktoken_root()),
             "OPF_CHECKPOINT": str(opf_checkpoint()),
             "PYTHONUNBUFFERED": "1",
         }

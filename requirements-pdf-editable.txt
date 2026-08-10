@@ -1,0 +1,4 @@
+# Optional PDF profile. It preserves searchable/editable non-redacted text.
+# PyMuPDF is not part of the default installer because its AGPL/commercial
+# licensing requires a separate distribution decision.
+PyMuPDF==1.28.0

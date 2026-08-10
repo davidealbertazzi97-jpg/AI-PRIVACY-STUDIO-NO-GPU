@@ -17,6 +17,9 @@ def anonymize_text(
     *,
     engine: str = "privacy_filter",
     include_dates: bool = True,
+    selected_spans: list[dict[str, Any]] | None = None,
+    preview_only: bool = False,
+    cached_spans: list[dict[str, Any]] | None = None,
 ) -> tuple[str, dict[str, Any], list[dict[str, Any]]]:
     if not PATHS.ai_python.is_file():
         raise RuntimeError(
@@ -41,6 +44,22 @@ def anonymize_text(
     ]
     if include_dates:
         command.append("--include-dates")
+    if selected_spans is not None:
+        selected_path = work_dir / "selected-spans.json"
+        selected_path.write_text(
+            json.dumps(selected_spans, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        command.extend(["--selected-spans-file", str(selected_path)])
+    if cached_spans is not None:
+        cached_path = work_dir / "cached-detected-spans.json"
+        cached_path.write_text(
+            json.dumps(cached_spans, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        command.extend(["--detected-spans-file", str(cached_path)])
+    if preview_only:
+        command.append("--preview-only")
     log_path = work_dir / "privacy-filter-worker.log"
     engine_title = (
         "Rizzo PII 0.3B"
@@ -74,5 +93,8 @@ def anonymize_text(
     payload = json.loads(output.read_text(encoding="utf-8"))
     redacted = str(payload.pop("redacted_text"))
     private_spans = payload.pop("_private_spans", [])
+    payload["selection_applied"] = selected_spans is not None
+    if selected_spans is not None:
+        payload["requested_selection_count"] = len(selected_spans)
     progress(0.92, f"Anonimizzazione locale ({engine_title}) completata")
     return redacted, payload, private_spans

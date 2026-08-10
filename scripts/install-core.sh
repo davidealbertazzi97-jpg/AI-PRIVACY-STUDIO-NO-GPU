@@ -21,4 +21,4 @@ else
 fi
 
 "$app_dir/.venv/bin/python" -c \
-  "import fastapi, httpx, markitdown, multipart, pexpect, pypdfium2, uvicorn; print('core pronto')"
+  "import cryptography, fastapi, httpx, markitdown, multipart, pexpect, pypdfium2, uvicorn; print('core pronto')"

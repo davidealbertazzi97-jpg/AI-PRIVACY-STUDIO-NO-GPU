@@ -1,5 +1,5 @@
 #define AppName "AI Privacy Studio (No GPU)"
-#define AppVersion "1.0.0"
+#define AppVersion "1.1.0"
 #ifndef SourceRoot
   #error SourceRoot must point to the checked-out repository
 #endif

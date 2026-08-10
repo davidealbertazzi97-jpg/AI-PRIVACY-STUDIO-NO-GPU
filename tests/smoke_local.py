@@ -198,6 +198,7 @@ def test_server(root: Path):
         }
     )
     managed_hf = APP_DIR / "models" / "huggingface"
+    environment["TIKTOKEN_CACHE_DIR"] = str(APP_DIR / "models" / "tiktoken")
     managed_opf = (
         managed_hf
         / "hub"

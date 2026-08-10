@@ -36,6 +36,7 @@ again when distributing a preassembled environment.
 | Microsoft MarkItDown | 0.1.6 | MIT |
 | pypdfium2 | 5.12.1 | BSD-3-Clause / Apache-2.0; its wheel carries PDFium and dependency notices |
 | Pillow | 12.3.0 | HPND |
+| cryptography | 49.0.0 | Apache-2.0 / BSD-3-Clause |
 | Pexpect | 4.9.0 | ISC |
 | Wexpect | 4.0.0 | MIT |
 | Setuptools | 83.0.0 | MIT |
@@ -114,8 +115,12 @@ Picocrypt, Ollama, and FFmpeg are not embedded in the `.exe`, `.AppImage`, or
 | Inno Setup runtime | Windows `.exe` | Inno Setup License; `licenses/INNO-SETUP.txt` |
 | Apple `hdiutil` disk-image format | macOS `.dmg` | Built with the operating-system tool; no third-party runtime is added by this repository |
 
-## Deliberate licensing boundary
+## PDF redaction boundary
 
-PyMuPDF is not a dependency of AI Privacy Studio. PDF rendering uses
-pypdfium2 to avoid introducing PyMuPDF's AGPL/commercial licensing terms into
-the application.
+The default installer uses pypdfium2/PDFium and Pillow and produces a secure
+rasterized redaction when the optional editable-PDF component is not installed.
+The optional `requirements-pdf-editable.txt` profile uses PyMuPDF to remove the
+PII from the PDF content stream while keeping the remaining text searchable and
+editable. PyMuPDF is AGPL-3.0-or-later or commercial-licensed and is therefore
+not bundled or installed by default; distributors must make a separate license
+decision before enabling that profile in a release.

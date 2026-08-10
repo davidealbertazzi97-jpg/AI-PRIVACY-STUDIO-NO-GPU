@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 CONTENTS="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 INSTALL_ROOT="$HOME/Library/Application Support/AI Privacy Studio/app"
 PAYLOAD="$CONTENTS/Resources/source.tar"

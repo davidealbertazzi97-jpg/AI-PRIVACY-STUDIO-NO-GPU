@@ -35,9 +35,9 @@ Use the files attached to the
 
 | Platform | Download | Supported architecture |
 | --- | --- | --- |
-| Windows 10/11 | `AI-Privacy-Studio-Setup-1.0.0-windows-x86_64.exe` | x86-64 |
-| Linux | `AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage` | x86-64 |
-| macOS 13+ | `AI-Privacy-Studio-1.0.0-macos-arm64.dmg` | Apple Silicon |
+| Windows 10/11 | `AI-Privacy-Studio-Setup-1.1.0-windows-x86_64.exe` | x86-64 |
+| Linux | `AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage` | x86-64 |
+| macOS 13+ | `AI-Privacy-Studio-1.1.0-macos-arm64.dmg` | Apple Silicon |
 
 These are online installers. They contain the audited project source, not the
 large models or downloaded runtimes. The first installation requires internet
@@ -58,8 +58,8 @@ the app afterward.
 #### Linux
 
 ```bash
-chmod +x AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
-./AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
+chmod +x AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage
+./AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage
 ```
 
 The first run opens a terminal for the verified installation. Later runs start
@@ -95,16 +95,30 @@ The full installer prepares:
 Use `--without-glm` only when disk space matters more than the GLM-OCR option.
 Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 
+To enable searchable/editable PDF redaction, install the optional profile only
+after reviewing its separate PyMuPDF AGPL/commercial licensing terms:
+
+```bash
+uv pip install --python .venv -r requirements-pdf-editable.txt
+```
+
 ### Functions
 
 - Italian or English interface with a saved local preference.
 - PII redaction with a choice between OpenAI Privacy Filter (multilingual) or Rizzo PII 0.3B by Simone Rizzo (specialized Italian PII: Tax Code, VAT ID, Land Registry, Document ID, etc.), plus deterministic Italian patterns.
 - Interactive PII Anonymization Viewer inspired by [Rizzo PII](https://github.com/Rizzo-AI-Academy/rizzo-pii) (Simone Rizzo / Rizzo AI Academy): color-coded entity badges (`PERSON`, `ADDRESS`, `EMAIL`, `PHONE`, `VAT_ID`, `TAX_CODE`, `IBAN`), click-to-reveal original text ("see what was there before"), and formatted print/copy views.
+- Two-step anonymization review: before either privacy engine writes an output, Privacy Studio runs a local detection preview, shows the source text next to the proposed redacted text, and lets you select or deselect each detected element. Only the confirmed spans are replaced.
+- During the preview you can also add a word or phrase that the engines missed; every matching occurrence is highlighted as a manual selection and can be kept or deselected before confirmation. The preview displays live local progress while it is being prepared.
+- Preview controls include persistent category filters, a custom replacement for each occurrence, and a document-wide replacement that can be applied in one click. The confirmed preview is cached locally so the model and extraction pass are not needlessly repeated.
+- PDF previews show the original and redacted copies side by side. With the optional editable-PDF profile, the PII is removed while the remaining text stays searchable and editable; the default installer uses a rasterized fallback because the editable component has a separate AGPL/commercial licensing choice. If OCR text cannot be located in the PDF page, Privacy Studio withholds the PDF output instead of offering an incomplete redaction.
+- Optional reversible dictionaries are encrypted as separate Picocrypt volumes; leaving the option off produces a definitive redaction without a recovery map. Invalid Italian structured identifiers are rejected by checksum rules and possible residual values are flagged for review.
 - Audio and video transcription with NVIDIA Parakeet.
 - OCR for images and multi-page PDF files with PaddleOCR, PP-StructureV3, or
   GLM-OCR.
 - Office, PDF, HTML, EPUB, and structured-data conversion with MarkItDown.
-- Picocrypt-compatible `.pcv` encryption and decryption.
+- Picocrypt-compatible `.pcv` encryption and decryption, with download/delete controls and a local group vault that encrypts multiple documents in one volume.
+- A separate permanent app-managed vault uses Scrypt + AES-256-GCM, stores each document incrementally, and supports unlock, search, download, delete, backup, and restore without exposing plaintext in the vault directory.
+- Encrypted vault backups can be copied to a local folder synchronized by Dropbox, OneDrive, Nextcloud, or another cloud client. Privacy Studio itself does not connect to external services or send passwords to them.
 - Persistent local job queue and downloadable result bundles.
 
 ### Privacy and security model
@@ -115,6 +129,8 @@ Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 - Linux adds a native outbound-network guard when available.
 - Ollama runs as a dedicated loopback-only process with cloud features
   disabled.
+- The OpenAI Privacy Filter tokenizer is prefetched into the local installation;
+  inference does not need a first-use download.
 - The interface contains no telemetry, CDN asset, or remote inference call.
 - Original files are not overwritten.
 - Working plaintext and uploaded copies are removed after each job, including
@@ -122,6 +138,9 @@ Use `--core-only --skip-desktop` for the lightweight conversion-only profile.
 - Picocrypt passphrases remain in memory only while an operation is running.
 - Public redaction reports contain labels and positions, not fragments of the
   detected private values.
+- Preview cache files, encrypted dictionaries, and group archives are private
+  local artifacts with restrictive permissions and are removed from staging
+  after the operation.
 
 Network access is required during installation to download verified software
 and pinned models. The default browser is outside the application's network
@@ -197,9 +216,9 @@ Usa i file allegati alla
 
 | Sistema | Download | Architettura supportata |
 | --- | --- | --- |
-| Windows 10/11 | `AI-Privacy-Studio-Setup-1.0.0-windows-x86_64.exe` | x86-64 |
-| Linux | `AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage` | x86-64 |
-| macOS 13+ | `AI-Privacy-Studio-1.0.0-macos-arm64.dmg` | Apple Silicon |
+| Windows 10/11 | `AI-Privacy-Studio-Setup-1.1.0-windows-x86_64.exe` | x86-64 |
+| Linux | `AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage` | x86-64 |
+| macOS 13+ | `AI-Privacy-Studio-1.1.0-macos-arm64.dmg` | Apple Silicon |
 
 Sono installer online. Contengono il sorgente verificato del progetto, non i
 modelli e i runtime di grandi dimensioni. La prima installazione richiede la
@@ -220,8 +239,8 @@ sul desktop.
 #### Linux
 
 ```bash
-chmod +x AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
-./AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage
+chmod +x AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage
+./AI-Privacy-Studio-1.1.0-linux-x86_64.AppImage
 ```
 
 Al primo avvio viene aperto un terminale per l'installazione verificata. Gli
@@ -258,15 +277,30 @@ Usa `--without-glm` soltanto se vuoi ridurre l'uso del disco rinunciando a
 GLM-OCR. Usa `--core-only --skip-desktop` per il profilo leggero dedicato alla
 conversione.
 
+Per mantenere ricercabile e modificabile il testo non-PPI nei PDF puoi
+installare il profilo opzionale dopo aver valutato separatamente la licenza
+AGPL/commerciale di PyMuPDF:
+
+```bash
+uv pip install --python .venv -r requirements-pdf-editable.txt
+```
+
 ### Funzioni
 
 - Interfaccia in italiano o inglese con preferenza salvata in locale.
 - Anonimizzazione PII a scelta tra OpenAI Privacy Filter (Tutte le lingue) e Rizzo PII 0.3B di Simone Rizzo (Solo italiano: Codice Fiscale, P.IVA, Dati Catastali, Documento ID, ecc.), oltre a regole italiane deterministiche.
 - Visualizzatore Interattivo Anonimizzazione PII ispirato a [Rizzo PII](https://github.com/Rizzo-AI-Academy/rizzo-pii) (Simone Rizzo / Rizzo AI Academy): tag cromatici per categoria di entità (`PERSONA`, `INDIRIZZO`, `EMAIL`, `TELEFONO`, `P.IVA`, `CODICE_FISCALE`, `IBAN`), toggle interattivo per mostrare/nascondere i valori originali ("vedere cosa c'era prima") e la visualizzazione di stampa formattata per la conservazione o il salvataggio in PDF.
+- Revisione in due passaggi: prima di scrivere il risultato, entrambi i motori mostrano una preview locale con testo rilevato e output previsto affiancati; puoi selezionare o deselezionare ogni singolo elemento e solo le rilevazioni confermate vengono anonimizzate.
+- Durante la preview puoi aggiungere anche parole o frasi non rilevate automaticamente: ogni occorrenza viene evidenziata come selezione manuale, può essere deselezionata singolarmente e viene sostituita soltanto dopo la conferma.
+- La preview permette di filtrare e memorizzare le categorie, personalizzare la sostituzione di ogni occorrenza oppure applicare una sostituzione a tutto il documento. Le rilevazioni vengono conservate in una cache locale temporanea per evitare una seconda inferenza inutile.
+- Per i PDF sono disponibili la pagina originale e l’anteprima redatta affiancate. Con il profilo PDF editabile opzionale il PII viene rimosso mantenendo ricercabile e modificabile il testo restante; l’installer predefinito usa un fallback rasterizzato perché il componente editabile richiede una scelta di licenza AGPL/commerciale separata. Se il testo OCR non è localizzabile nella pagina PDF, Privacy Studio non consegna il PDF per evitare una redazione incompleta.
+- Il dizionario reversibile è opzionale e, se richiesto, viene cifrato automaticamente in un volume Picocrypt separato. Senza dizionario non viene salvata alcuna mappa di recupero; checksum italiani e avvisi sui possibili residui aiutano la revisione umana.
 - Trascrizione audio e video con NVIDIA Parakeet.
 - OCR di immagini e PDF multipagina con PaddleOCR, PP-StructureV3 o GLM-OCR.
 - Conversione di Office, PDF, HTML, EPUB e dati strutturati con MarkItDown.
-- Cifratura e decifratura compatibile con volumi Picocrypt `.pcv`.
+- Cifratura e decifratura compatibile con volumi Picocrypt `.pcv`, download/eliminazione dei volumi e creazione di un vault locale di gruppo con più documenti protetti in un unico volume.
+- Un vault permanente separato, gestito dall’app, usa Scrypt + AES-256-GCM, cifra i documenti singolarmente e incrementalmente e permette sblocco, ricerca, download, eliminazione, backup e ripristino senza lasciare i file in chiaro nella cartella del vault.
+- I backup cifrati possono essere copiati in una cartella sincronizzata da Dropbox, OneDrive, Nextcloud o altro client cloud. Privacy Studio non si collega direttamente a servizi esterni e non invia loro le password.
 - Coda locale persistente e pacchetti di risultati scaricabili.
 
 ### Modello di privacy e sicurezza

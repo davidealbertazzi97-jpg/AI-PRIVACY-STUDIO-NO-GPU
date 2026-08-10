@@ -229,11 +229,10 @@
                 <i data-lucide="badge-check"></i>
                 <span data-i18n="vault.badge">Picocrypt 1.49 · formato .pcv</span>
               </div>
-              <h2 data-i18n-html="vault.title">Protezione forte.<br><span>Senza compromessi.</span></h2>
+              <h2 data-i18n-html="vault.title">Proteggi i tuoi file.<br><span>Nel modo giusto.</span></h2>
               <p data-i18n="vault.description">
-                I file diventano volumi Picocrypt compatibili. La password
-                rimane soltanto in memoria durante l’operazione e non viene
-                mai salvata.
+                Scegli tra un documento cifrato indipendente e un vault
+                persistente da aprire e aggiornare nel tempo.
               </p>
             </div>
             <div class="vault-lock" aria-hidden="true">
@@ -242,63 +241,175 @@
             </div>
           </div>
 
-          <form id="vault-form" class="vault-form">
-            <div class="vault-drop-column">
-              <p class="section-label" data-i18n="vault.filesLabel">FILE DA PROTEGGERE O APRIRE</p>
-              <div class="drop-zone compact" id="vault-drop" tabindex="0" role="button" aria-label="File da proteggere o aprire" data-i18n-aria="vault.filesLabel">
-                <input id="vault-files" type="file" multiple>
-                <div class="drop-symbol"><i data-lucide="folder-lock"></i></div>
-                <strong data-i18n="vault.dropTitle">Trascina file o volumi .pcv</strong>
-                <span data-i18n="vault.dropDetail">Puoi cifrare file grandi senza caricarli online</span>
-              </div>
-              <div class="selected-files" id="vault-file-list"></div>
+          <div class="vault-guide" aria-label="Scegli il tipo di protezione">
+            <div class="vault-guide-item">
+              <span>01</span>
+              <div><strong data-i18n="vault.guideSingleTitle">Documento singolo</strong><small data-i18n="vault.guideSingleDetail">Un file → un volume .pcv indipendente</small></div>
             </div>
-
-            <div class="vault-settings">
-              <label class="field">
-                <span data-i18n="vault.passphrase">Passphrase</span>
-                <input type="password" id="vault-password" minlength="10" autocomplete="new-password" placeholder="Una frase lunga e unica" data-i18n-placeholder="vault.passphrasePlaceholder">
-              </label>
-              <label class="field">
-                <span data-i18n="vault.confirm">Conferma passphrase</span>
-                <input type="password" id="vault-confirm" minlength="10" autocomplete="new-password" placeholder="Ripetila" data-i18n-placeholder="vault.confirmPlaceholder">
-              </label>
-              <label class="check-row">
-                <input type="checkbox" id="vault-paranoid">
-                <span>
-                  <strong data-i18n="vault.paranoid">Modalità paranoica</strong>
-                  <small data-i18n="vault.paranoidDetail">Cascata XChaCha20 + Serpent; molto più lenta</small>
-                </span>
-              </label>
-              <label class="check-row">
-                <input type="checkbox" id="vault-recovery">
-                <span>
-                  <strong data-i18n="vault.recovery">Correzione errori</strong>
-                  <small data-i18n="vault.recoveryDetail">Reed–Solomon per archiviazione di lungo periodo</small>
-                </span>
-              </label>
-              <div class="vault-actions">
-                <button type="button" class="primary-button" id="encrypt-button">
-                  <i data-lucide="lock"></i> <span data-i18n="vault.encrypt">Cifra nella cassaforte</span>
-                </button>
-                <button type="button" class="secondary-button" id="decrypt-button">
-                  <i data-lucide="unlock"></i> <span data-i18n="vault.decrypt">Decifra .pcv</span>
-                </button>
-              </div>
+            <div class="vault-guide-line" aria-hidden="true"></div>
+            <div class="vault-guide-item">
+              <span>02</span>
+              <div><strong data-i18n="vault.guideManagerTitle">Vault persistente</strong><small data-i18n="vault.guideManagerDetail">Una cassaforte da aprire, aggiornare e bloccare</small></div>
             </div>
-          </form>
+          </div>
 
-          <section class="vault-list-section">
-            <div class="section-heading">
+          <section class="vault-mode-section vault-single-section">
+            <div class="vault-mode-heading">
               <div>
-                <p class="section-label" data-i18n="vault.localVolumes">VOLUMI LOCALI</p>
-                <h3 data-i18n="vault.contents">Contenuto della cassaforte</h3>
+                <p class="section-label" data-i18n="vault.singleLabel">01 · DOCUMENTI SINGOLI</p>
+                <h3 data-i18n="vault.singleTitle">Cripta un documento alla volta</h3>
+                <p data-i18n="vault.singleDetail">Usa questa area quando vuoi consegnare o archiviare un singolo file cifrato. Il risultato è un volume .pcv autonomo.</p>
               </div>
-              <button class="icon-button" id="refresh-vault" aria-label="Aggiorna cassaforte" data-i18n-aria="vault.refresh">
-                <i data-lucide="refresh-cw"></i>
-              </button>
+              <span class="vault-mode-chip"><i data-lucide="file-lock-2"></i> .pcv</span>
             </div>
-            <div class="vault-list" id="vault-list"></div>
+            <ol class="vault-howto">
+              <li><strong data-i18n="vault.singleStep1Title">Seleziona un documento</strong><span data-i18n="vault.singleStep1Detail">Il file originale non viene modificato.</span></li>
+              <li><strong data-i18n="vault.singleStep2Title">Imposta una passphrase</strong><span data-i18n="vault.singleStep2Detail">Usa almeno 10 caratteri e conservala separatamente.</span></li>
+              <li><strong data-i18n="vault.singleStep3Title">Scarica il volume</strong><span data-i18n="vault.singleStep3Detail">Riceverai un .pcv da aprire solo con la passphrase.</span></li>
+            </ol>
+
+            <form id="vault-form" class="vault-form">
+              <div class="vault-drop-column">
+                <p class="section-label" data-i18n="vault.singleFilesLabel">DOCUMENTO DA CIFRARE O VOLUME DA DECIFRARE</p>
+                <div class="drop-zone compact" id="vault-drop" tabindex="0" role="button" aria-label="Documento da cifrare o volume da decifrare" data-i18n-aria="vault.singleFilesLabel">
+                  <input id="vault-files" type="file">
+                  <div class="drop-symbol"><i data-lucide="file-lock-2"></i></div>
+                  <strong data-i18n="vault.singleDropTitle">Trascina qui un documento</strong>
+                  <span data-i18n="vault.singleDropDetail">Per la decifratura seleziona un volume .pcv</span>
+                </div>
+                <div class="selected-files" id="vault-file-list"></div>
+              </div>
+
+              <div class="vault-settings">
+                <label class="field">
+                  <span data-i18n="vault.passphrase">Passphrase</span>
+                  <input type="password" id="vault-password" minlength="10" autocomplete="new-password" placeholder="Una frase lunga e unica" data-i18n-placeholder="vault.passphrasePlaceholder">
+                  <small data-i18n="vault.singlePasswordHint">La passphrase non viene salvata.</small>
+                </label>
+                <label class="field">
+                  <span data-i18n="vault.confirm">Conferma passphrase</span>
+                  <input type="password" id="vault-confirm" minlength="10" autocomplete="new-password" placeholder="Ripetila" data-i18n-placeholder="vault.confirmPlaceholder">
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" id="vault-paranoid">
+                  <span>
+                    <strong data-i18n="vault.paranoid">Modalità paranoica</strong>
+                    <small data-i18n="vault.paranoidDetail">Cascata XChaCha20 + Serpent; molto più lenta</small>
+                  </span>
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" id="vault-recovery">
+                  <span>
+                    <strong data-i18n="vault.recovery">Correzione errori</strong>
+                    <small data-i18n="vault.recoveryDetail">Reed–Solomon per archiviazione di lungo periodo</small>
+                  </span>
+                </label>
+                <div class="vault-actions">
+                  <button type="button" class="primary-button" id="encrypt-button">
+                    <i data-lucide="lock"></i> <span data-i18n="vault.encryptSingle">Cifra questo documento</span>
+                  </button>
+                  <button type="button" class="secondary-button" id="decrypt-button">
+                    <i data-lucide="unlock"></i> <span data-i18n="vault.decryptSingle">Decifra questo volume .pcv</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section class="vault-mode-section vault-manager-section">
+            <div class="vault-mode-heading">
+              <div>
+                <p class="section-label" data-i18n="vault.managerLabel">02 · VAULT CRIPTATI</p>
+                <h3 data-i18n="vault.managerTitle">Crea e gestisci una cassaforte persistente</h3>
+                <p data-i18n="vault.managerDetail">Questo è il flusso in stile Cryptomator: crei il vault una volta, poi lo apri, aggiungi documenti, li scarichi o li elimini senza ricostruire tutto.</p>
+              </div>
+              <span class="vault-mode-chip vault-mode-chip-manager"><i data-lucide="vault"></i> Vault</span>
+            </div>
+            <div class="vault-explainer">
+              <i data-lucide="info"></i>
+              <div><strong data-i18n="vault.managerHintTitle">Come usarlo</strong><span data-i18n="vault.managerHintDetail">Crea o apri il vault con la password. Quando hai finito, usa “Blocca vault”: senza password i documenti non sono leggibili.</span></div>
+            </div>
+
+            <section class="permanent-vault-card">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label" data-i18n="vault.permanentLabel">VAULT PERMANENTE</p>
+                  <h3 data-i18n="vault.permanentTitle">I tuoi documenti, sempre nella cassaforte</h3>
+                </div>
+                <span class="verified-pill"><i data-lucide="shield-check"></i> <span data-i18n="vault.localOnly">Locale e cifrato</span></span>
+              </div>
+              <p class="permanent-vault-intro" data-i18n="vault.permanentDetail">
+                Un archivio incrementale protetto da password: aprilo, cerca i documenti e scaricali senza ricreare tutto il vault.
+              </p>
+              <div id="permanent-vault-panel"></div>
+            </section>
+
+            <section class="portable-vault-card">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label" data-i18n="vault.portableLabel">VAULT PORTATILE</p>
+                  <h3 data-i18n="vault.portableTitle">Raccogli più documenti in un unico .pcv</h3>
+                </div>
+                <span class="vault-mode-chip"><i data-lucide="archive-lock"></i> .pcv</span>
+              </div>
+              <p class="permanent-vault-intro" data-i18n="vault.portableDetail">Crea un volume unico da spostare o consegnare. È separato dal vault permanente e non si aggiorna automaticamente.</p>
+              <div class="portable-vault-grid">
+                <div>
+                  <p class="section-label" data-i18n="vault.portableFilesLabel">DOCUMENTI DA RACCOGLIERE</p>
+                  <div class="drop-zone compact" id="vault-group-drop" tabindex="0" role="button" aria-label="Documenti da raccogliere" data-i18n-aria="vault.portableFilesLabel">
+                    <input id="vault-group-files" type="file" multiple>
+                    <div class="drop-symbol"><i data-lucide="files"></i></div>
+                    <strong data-i18n="vault.portableDropTitle">Trascina più documenti</strong>
+                    <span data-i18n="vault.portableDropDetail">Verranno cifrati insieme in un solo volume</span>
+                  </div>
+                  <div class="selected-files" id="vault-group-file-list"></div>
+                </div>
+                <div class="portable-vault-settings">
+                  <label class="field">
+                    <span data-i18n="vault.groupName">Nome del vault</span>
+                    <input type="text" id="vault-group-name" maxlength="120" placeholder="Documenti del progetto" data-i18n-placeholder="vault.groupNamePlaceholder">
+                  </label>
+                  <label class="field">
+                    <span data-i18n="vault.passphrase">Passphrase</span>
+                    <input type="password" id="vault-group-password" minlength="10" autocomplete="new-password" placeholder="Una frase lunga e unica" data-i18n-placeholder="vault.passphrasePlaceholder">
+                  </label>
+                  <label class="field">
+                    <span data-i18n="vault.confirm">Conferma passphrase</span>
+                    <input type="password" id="vault-group-confirm" minlength="10" autocomplete="new-password" placeholder="Ripetila" data-i18n-placeholder="vault.confirmPlaceholder">
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="vault-group-paranoid">
+                    <span>
+                      <strong data-i18n="vault.paranoid">Modalità paranoica</strong>
+                      <small data-i18n="vault.paranoidDetail">Cascata XChaCha20 + Serpent; molto più lenta</small>
+                    </span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="vault-group-recovery">
+                    <span>
+                      <strong data-i18n="vault.recovery">Correzione errori</strong>
+                      <small data-i18n="vault.recoveryDetail">Reed–Solomon per archiviazione di lungo periodo</small>
+                    </span>
+                  </label>
+                  <button type="button" class="secondary-button" id="group-button">
+                    <i data-lucide="archive-lock"></i> <span data-i18n="vault.createPortable">Crea volume portatile</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section class="vault-list-section">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label" data-i18n="vault.localVolumes">VOLUMI PCV LOCALI</p>
+                  <h3 data-i18n="vault.contents">Volumi creati dai documenti singoli</h3>
+                </div>
+                <button class="icon-button" id="refresh-vault" aria-label="Aggiorna volumi locali" data-i18n-aria="vault.refresh">
+                  <i data-lucide="refresh-cw"></i>
+                </button>
+              </div>
+              <div class="vault-list" id="vault-list"></div>
+            </section>
           </section>
         </section>
 
@@ -375,6 +486,13 @@
           <i data-lucide="unlock"></i> <span data-i18n="dialog.decryptLocal">Decifra in locale</span>
         </button>
       </form>
+    </dialog>
+
+    <dialog id="anonymization-preview-dialog" class="dialog preview-dialog">
+      <button class="dialog-close" data-preview-close aria-label="Chiudi" data-i18n-aria="actions.close">
+        <i data-lucide="x"></i>
+      </button>
+      <div id="anonymization-preview-detail"></div>
     </dialog>
 
     <div class="toast-region" id="toast-region" aria-live="polite"></div>

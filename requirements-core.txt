@@ -6,6 +6,7 @@ imageio-ffmpeg==0.6.0
 markitdown[docx,outlook,pdf,pptx,xls,xlsx]==0.1.6
 pypdfium2==5.12.1
 Pillow==12.3.0
+cryptography==49.0.0
 pexpect==4.9.0; sys_platform != "win32"
 wexpect==4.0.0; sys_platform == "win32"
 zstandard==0.25.0

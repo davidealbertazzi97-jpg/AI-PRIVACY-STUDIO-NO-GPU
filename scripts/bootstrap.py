@@ -146,7 +146,7 @@ def main() -> int:
             str(core_python),
             "-c",
             (
-                "import fastapi, imageio_ffmpeg, markitdown, pypdfium2, "
+                "import cryptography, fastapi, imageio_ffmpeg, markitdown, pypdfium2, "
                 f"uvicorn, zstandard; {expect_import}; print('Nucleo pronto')"
             ),
         ]

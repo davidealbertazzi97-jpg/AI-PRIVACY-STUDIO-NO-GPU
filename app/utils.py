@@ -65,6 +65,29 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def public_privacy_report(privacy: dict[str, Any]) -> dict[str, Any]:
+    """Return a report that never contains detected private fragments.
+
+    The authenticated local UI keeps the richer result in the job database so
+    the interactive review can still reveal a value on demand. The downloadable
+    report is a separate public artifact and must contain only labels, positions,
+    and generated placeholders.
+    """
+    report = dict(privacy)
+    report.pop("original_text", None)
+    report.pop("_private_spans", None)
+    report["spans"] = [
+        {
+            key: span[key]
+            for key in ("label", "start", "end", "placeholder")
+            if key in span
+        }
+        for span in privacy.get("spans", [])
+        if isinstance(span, dict)
+    ]
+    return report
+
+
 def file_kind(path: Path) -> str:
     ext = path.suffix.lower()
     if ext in {

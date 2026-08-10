@@ -168,7 +168,7 @@ def main() -> int:
         str(ai_python),
     ]
     if system == "Darwin":
-        torch_command.append("torch==2.13.0")
+        torch_command.append("torch==2.11.0")
     else:
         torch_command.extend(
             [

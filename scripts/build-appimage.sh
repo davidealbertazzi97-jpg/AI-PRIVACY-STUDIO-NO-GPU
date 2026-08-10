@@ -2,6 +2,7 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_VERSION="1.1.0"
 TOOLS_DIR="${AI_PRIVACY_TOOLS_DIR:-$APP_DIR/.tools}"
 APPIMAGETOOL="${APPIMAGETOOL:-$TOOLS_DIR/appimagetool-x86_64.AppImage}"
 RUNTIME_FILE="${APPIMAGE_RUNTIME_FILE:-$TOOLS_DIR/runtime-x86_64}"
@@ -29,6 +30,6 @@ python3 "$APP_DIR/scripts/build-release-packages.py"
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 \
   "$APPIMAGETOOL" --runtime-file "$RUNTIME_FILE" \
   "$APP_DIR/build/AppDir" \
-  "$APP_DIR/dist/AI-Privacy-Studio-1.0.0-linux-x86_64.AppImage"
+  "$APP_DIR/dist/AI-Privacy-Studio-${APP_VERSION}-linux-x86_64.AppImage"
 
 echo "Linux AppImage created successfully."
